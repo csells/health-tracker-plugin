@@ -16,7 +16,7 @@ of a 23andMe or AncestryDNA download.
 2. Start a **Cowork** session.
 3. Paste this into the chat:
 
-   > **Set me up with this health assistant: https://github.com/csells/health-tracker-skill — read the
+   > **Set me up with this health assistant: https://github.com/csells/health-tracker-plugin — read the
    > page and walk me through it.**
 
 Claude will read this page and take it from there — it'll tell you exactly what to click, ask you
@@ -38,7 +38,7 @@ Plugin installation is a deliberate security boundary: a plugin can ship executa
 **a human has to approve it by hand.** Don't try to work around this. Walk them through it warmly:
 
 > In the sidebar, click **Customize**, then **Plugins**. Click **Add marketplace**, and paste in:
-> `csells/health-tracker-skill`. Then click **Install** on the plugin called **health-tracker**. Tell me
+> `csells/health-tracker-plugin`. Then click **Install** on the plugin called **health-tracker**. Tell me
 > when it's done.
 
 Wait for them to confirm. If they get stuck, help them find the buttons — don't move on without it,
@@ -82,7 +82,7 @@ If you'd rather not have Claude walk you through it:
 
 1. Install the **Claude** app and sign in. You need the **Pro** plan or higher.
 2. Start a **Cowork** session.
-3. **Customize → Plugins → Add marketplace** → enter `csells/health-tracker-skill` → **Install** the
+3. **Customize → Plugins → Add marketplace** → enter `csells/health-tracker-plugin` → **Install** the
    **health-tracker** plugin.
 4. Make a folder for your health information and connect it in Cowork.
 5. Say: **"Set up my health tracker."**
