@@ -1,0 +1,16 @@
+{
+  "name": "health-tracker",
+  "owner": {
+    "name": "Chris Sells"
+  },
+  "metadata": {
+    "description": "A private, agent-driven personal health archive: file your medical records, log symptoms, generate doctor-ready reports, and run a genetic health analysis on your own DNA — all in a folder on your own computer."
+  },
+  "plugins": [
+    {
+      "name": "health-archive",
+      "source": "./plugins/health-archive",
+      "description": "Organize your medical records, keep a living health summary, log symptom episodes, generate printable health reports, and analyze your raw 23andMe/AncestryDNA export — with your data staying in a local folder."
+    }
+  ]
+}
