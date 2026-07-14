@@ -9,3 +9,6 @@ __pycache__/
 # Editor
 *.swp
 *.swo
+
+# Agent-instruction migration backups (local safety copies; the .agents/skills symlink IS tracked)
+.agents/migration/
