@@ -1,6 +1,6 @@
 ---
 name: log-symptom
-description: Record a symptom episode — an attack, a flare, a bad spell, an ER trip — into the health archive in the detail a specialist actually needs, and flag any time-critical follow-up. Use whenever someone describes an episode in any form: "I had an attack", "another flare last night", "she had another episode", "log this", "I'm recovering from one", "went to the ER again", or any description of a recurring symptom. Offer to log it even when they're just mentioning it in passing. For someone with a recurring undiagnosed problem, this diary is often the single most valuable diagnostic instrument they have.
+description: Record a symptom episode — an attack, a flare, a bad spell, an ER trip — into the health tracker in the detail a specialist actually needs, and flag any time-critical follow-up. Use whenever someone describes an episode in any form: "I had an attack", "another flare last night", "she had another episode", "log this", "I'm recovering from one", "went to the ER again", or any description of a recurring symptom. Offer to log it even when they're just mentioning it in passing. For someone with a recurring undiagnosed problem, this diary is often the single most valuable diagnostic instrument they have.
 ---
 
 # Log a Symptom Episode

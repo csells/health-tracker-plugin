@@ -1,6 +1,6 @@
 ---
 name: file-records
-description: File new medical records into the health archive and keep the living documents current. Use when someone mentions new health documents, lab results, ER paperwork, visit notes, or imaging to sort; says "I have new records", "file these", "sort out my intake folder", "I downloaded my labs", "add this to my archive", "update my lab results"; or drops files into the intake/ folder. Also handles updating the lab timeline and the living summary after new records arrive.
+description: File new medical records into the health tracker and keep the living documents current. Use when someone mentions new health documents, lab results, ER paperwork, visit notes, or imaging to sort; says "I have new records", "file these", "sort out my intake folder", "I downloaded my labs", "add this to my archive", "update my lab results"; or drops files into the intake/ folder. Also handles updating the lab timeline and the living summary after new records arrive.
 ---
 
 # File Medical Records

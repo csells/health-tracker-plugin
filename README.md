@@ -16,7 +16,7 @@ of a 23andMe or AncestryDNA download.
 2. Start a **Cowork** session.
 3. Paste this into the chat:
 
-   > **Set me up with this health assistant: https://github.com/csells/health-tracker — read the
+   > **Set me up with this health assistant: https://github.com/csells/health-tracker-skill — read the
    > page and walk me through it.**
 
 Claude will read this page and take it from there — it'll tell you exactly what to click, ask you
@@ -38,7 +38,7 @@ Plugin installation is a deliberate security boundary: a plugin can ship executa
 **a human has to approve it by hand.** Don't try to work around this. Walk them through it warmly:
 
 > In the sidebar, click **Customize**, then **Plugins**. Click **Add marketplace**, and paste in:
-> `csells/health-tracker`. Then click **Install** on the plugin called **health-archive**. Tell me
+> `csells/health-tracker-skill`. Then click **Install** on the plugin called **health-tracker**. Tell me
 > when it's done.
 
 Wait for them to confirm. If they get stuck, help them find the buttons — don't move on without it,
@@ -51,7 +51,7 @@ and connect it in Cowork. It can be empty; you'll fill it.
 
 **Step 3 — Run the setup.**
 
-Once the plugin is installed and the folder is connected, the **setup-archive** skill takes over.
+Once the plugin is installed and the folder is connected, the **setup-health-tracker** skill takes over.
 It interviews them and builds everything. Just start it.
 
 ---
@@ -62,7 +62,7 @@ Talk in plain language. Claude picks the right tool automatically.
 
 | Say this | What happens |
 |---|---|
-| *"Set up my health archive"* | Asks you some questions and builds your folders and profile |
+| *"Set up my health tracker"* | Asks you some questions and builds your folders and profile |
 | *"File my new records"* | Sorts and files any documents you dropped in the **intake** folder |
 | *"I had an episode last night"* | Records the symptom properly, and flags anything time-sensitive |
 | *"Make me a health report"* | Builds a printable summary you can hand a doctor |
@@ -82,10 +82,10 @@ If you'd rather not have Claude walk you through it:
 
 1. Install the **Claude** app and sign in. You need the **Pro** plan or higher.
 2. Start a **Cowork** session.
-3. **Customize → Plugins → Add marketplace** → enter `csells/health-tracker` → **Install** the
-   **health-archive** plugin.
+3. **Customize → Plugins → Add marketplace** → enter `csells/health-tracker-skill` → **Install** the
+   **health-tracker** plugin.
 4. Make a folder for your health information and connect it in Cowork.
-5. Say: **"Set up my health archive."**
+5. Say: **"Set up my health tracker."**
 
 ---
 
@@ -106,34 +106,29 @@ If you'd rather not have Claude walk you through it:
   as a diagnosis.
 
 ---
+---
 
-## For whoever maintains this
+# Maintainer notes
 
-**Repository layout**
+*Nothing below here matters if you're just using this. Stop reading — you're done.*
 
-```
-.claude-plugin/marketplace.json     ← marketplace manifest
-plugins/health-archive/
-  .claude-plugin/plugin.json         ← plugin manifest
-  version.json                       ← bump to push an update to installed users
-  skills/                            ← setup-archive, file-records, log-symptom,
-                                       health-report, analyze-genome
-  scripts/                           ← genetic-analysis pipeline (Python stdlib only)
-  reference/                         ← public ClinVar + PharmGKB data, gzipped
-```
+**Layout.** `.claude-plugin/marketplace.json` (marketplace manifest) → `plugins/health-tracker/`
+holding `.claude-plugin/plugin.json`, `version.json`, `skills/` (setup-health-tracker, file-records,
+log-symptom, health-report, analyze-genome), `scripts/` (the genetic pipeline, Python stdlib only),
+and `reference/` (public ClinVar + PharmGKB, gzipped).
 
-**Pushing updates.** Because this is a git-backed marketplace, you can fix things without touching
-the user's machine: edit, bump `version` in `version.json` and `plugin.json`, commit, push. The user
-clicks **Update** on the marketplace and gets the change.
+**Shipping an update.** Edit → bump `version` in `version.json` and `plugin.json` → commit → push.
+The user clicks **Update** on the marketplace and gets it. You never touch their machine.
 
-**The reference data.** The pipeline reads ClinVar (341,375 variants) and PharmGKB. Raw ClinVar is
-289 MB — over GitHub's 100 MB/file limit and the 200 MB plugin cap. It ships **gzipped** (~27 MB
-total) and is read directly via Python's `gzip` module, streaming row-by-row.
+**The reference data.** ClinVar (341,375 variants) + PharmGKB. Raw ClinVar is 289 MB — over GitHub's
+100 MB/file limit *and* the 200 MB plugin cap — so it ships gzipped (~27 MB), read directly via
+Python's `gzip` module, streaming row by row.
 
-**Nothing was filtered out.** The compression is byte-for-byte lossless — every row and column is
-recoverable (verified by SHA-256), and the pipeline produces findings identical to the uncompressed
-original (verified by a seed-pinned diff of every output file). To refresh: download the latest
-ClinVar/PharmGKB TSVs, gzip them into `reference/`, bump the version.
+**Nothing was filtered out of it.** The compression is byte-for-byte lossless: every row and column
+is recoverable (verified by SHA-256), and the pipeline's findings are identical to the uncompressed
+original (verified by a seed-pinned diff of every output file). To refresh, download the latest
+ClinVar/PharmGKB TSVs, gzip them into `reference/`, and bump the version.
 
-**Privacy model.** A public repo is fine and preferable — the plugin holds only generic skills and
-public reference data, no PHI, and public repos clone anonymously so the user hits no auth friction.
+**Privacy.** Public repo is correct: the plugin holds only generic skills and public reference data —
+no PHI — and public repos clone anonymously, so the user hits no auth friction. Their records and
+genome never leave their own folder.

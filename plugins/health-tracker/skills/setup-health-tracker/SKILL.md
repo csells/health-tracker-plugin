@@ -1,9 +1,9 @@
 ---
-name: setup-archive
-description: Set up a new personal health archive — the folder structure, the patient profile, and the living documents — by interviewing the person about themselves. Use when someone is starting out with the health archive, says "set up my health archive", "get me started", "I just installed this", "help me begin", "create my health folder", or when any other health-archive skill runs and finds no archive (no records/ folder, no PROFILE.md) in the current folder. This is the first thing a new user does; it replaces having a technical person configure everything by hand.
+name: setup-health-tracker
+description: Set up a new personal health tracker — the folder structure, the patient profile, and the living documents — by interviewing the person about themselves. Use when someone is starting out with the health tracker, says "set up my health tracker", "get me started", "I just installed this", "help me begin", "create my health folder", or when any other health-tracker skill runs and finds no archive (no records/ folder, no PROFILE.md) in the current folder. This is the first thing a new user does; it replaces having a technical person configure everything by hand.
 ---
 
-# Set Up a Health Archive
+# Set Up a Health Tracker
 
 Your job here is to stand in for the friend who would otherwise have set this up by hand.
 The person you're talking to is **not technical**. Do not mention git, terminals, JSON, or file
@@ -60,7 +60,7 @@ Create this layout in the current folder. Create every directory even if it's em
 folders tell the person (and you, later) where things go.
 
 ```
-.health-archive          ← marker file (see below); this is what identifies the archive
+.health-tracker          ← marker file (see below); this is what identifies the archive
 PROFILE.md               ← who they are, from the interview
 known-hazards.md         ← known errors in their chart; may start empty
 records/                 ← SOURCE OF TRUTH. Append-only. Never edit or delete anything here.
@@ -80,8 +80,8 @@ reports/                 ← what we generate, for humans
 intake/                  ← drop-zone for new files waiting to be filed
 ```
 
-Write a short `.health-archive` marker file containing a single line like
-`health-archive workspace — created <the date the person tells you, or leave undated>`.
+Write a short `.health-tracker` marker file containing a single line like
+`health-tracker workspace — created <the date the person tells you, or leave undated>`.
 Do not invent a date; if you don't know today's date, ask or leave it out.
 
 ## 3. Write PROFILE.md
@@ -149,7 +149,7 @@ for years; a wrong word here can misdirect care. When you find one, add it as:
 
 In plain language, no jargon. Something like:
 
-> Your health archive is set up. Here's what you can do now:
+> Your health tracker is set up. Here's what you can do now:
 > - **"I have new records to file"** — drop PDFs into the `intake` folder and I'll sort and file them.
 > - **"Log a symptom"** — tell me about an episode and I'll record it properly.
 > - **"Make me a health report"** — I'll build a printable summary for a doctor.

@@ -1,4 +1,4 @@
-"""Path resolution for the health-archive genome pipeline.
+"""Path resolution for the health-tracker genome pipeline.
 
 Two distinct roots, and keeping them separate is the whole point of this file:
 
@@ -72,19 +72,19 @@ def open_data(path: Path, encoding: str = "utf-8") -> IO[str]:
 # 2. The person's workspace (the folder they connected to Cowork)
 # --------------------------------------------------------------------------
 
-WORKSPACE_MARKER = ".health-archive"
+WORKSPACE_MARKER = ".health-tracker"
 
 
 def find_workspace() -> Path:
-    """Locate the health archive workspace.
+    """Locate the health tracker workspace.
 
     Resolution order, most explicit first:
-      1. $HEALTH_ARCHIVE_WORKSPACE
-      2. nearest parent directory holding a .health-archive marker
+      1. $HEALTH_TRACKER_WORKSPACE
+      2. nearest parent directory holding a .health-tracker marker
       3. nearest parent directory holding a records/ directory
       4. the current directory
     """
-    env = os.environ.get("HEALTH_ARCHIVE_WORKSPACE")
+    env = os.environ.get("HEALTH_TRACKER_WORKSPACE")
     if env:
         return Path(env).expanduser().resolve()
 
@@ -104,9 +104,9 @@ def require_workspace() -> Path:
     ws = find_workspace()
     if not (ws / WORKSPACE_MARKER).exists() and not (ws / "records").is_dir():
         raise FileNotFoundError(
-            f"No health archive found at {ws}.\n"
+            f"No health tracker found at {ws}.\n"
             "Expected a folder containing records/.\n"
-            "If this is a new archive, ask Claude to 'set up my health archive' first."
+            "If this is a new archive, ask Claude to 'set up my health tracker' first."
         )
     return ws
 

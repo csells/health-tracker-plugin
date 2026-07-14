@@ -1,0 +1,16 @@
+{
+  "name": "health-tracker",
+  "version": "0.1.0",
+  "description": "A private, agent-driven personal health tracker. Set up an organized medical-records folder, file new records, log symptom episodes, generate doctor-ready health assessments, and run a genetic health analysis on your raw DNA export. Your records and DNA stay in a local folder; only public reference data ships with the plugin.",
+  "author": {
+    "name": "Chris Sells"
+  },
+  "keywords": [
+    "health",
+    "medical-records",
+    "genome",
+    "genetics",
+    "pharmacogenomics",
+    "personal-health"
+  ]
+}
