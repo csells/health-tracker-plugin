@@ -1,6 +1,6 @@
 ---
 name: health-report
-description: Generate a comprehensive, printable health assessment from the medical records in the archive. Use when someone asks to create a health report, generate a medical summary, produce a health assessment, make a PDF for a doctor, or wants a printable overview of their records. Triggers on "generate a report", "create a health report", "make a PDF report", "health assessment", "summary for my doctor".
+description: Generate a comprehensive, printable health assessment from the medical records in the health tracker. Use when someone asks to create a health report, generate a medical summary, produce a health assessment, make a PDF for a doctor, or wants a printable overview of their records. Triggers on "generate a report", "create a health report", "make a PDF report", "health assessment", "summary for my doctor".
 ---
 
 # Health Report Generator
