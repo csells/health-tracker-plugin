@@ -1,83 +1,139 @@
-# Health Tracker — a personal health archive plugin for Claude Cowork
+# Your private health assistant
 
-This repository is a **Claude plugin marketplace**. It packages a private, agent-driven personal
-health archive so a **non-technical person** can run it themselves in **Claude Cowork** — no git,
-no terminal, no Python, and no medical data in the cloud.
+This turns Claude into a private assistant for your medical records — one that lives in a folder on
+**your own computer**. It helps you keep every record organized, write down symptoms the way a
+specialist actually needs them, produce a clean summary for your doctor, and (optionally) make sense
+of a 23andMe or AncestryDNA download.
 
-It's a de-personalized, portable version of a working medical-records archive: same folder
-discipline, same skills, same genetic-analysis pipeline — with all patient-specific identity and
-data stripped out and replaced by an interview-driven setup.
+**You don't need to be technical. You don't need to read this whole page.**
 
-## What the user gets
+---
 
-Once installed, they talk to Claude in plain language:
+## 👉 The easy way: let Claude set it up for you
 
-| They say… | The skill that runs | What happens |
-|---|---|---|
-| "Set up my health archive" | `setup-archive` | Interviews them, builds the folder structure, profile, and living documents |
-| "File these records" / drops files in `intake/` | `file-records` | Sorts and files records, updates the lab timeline and living summary |
-| "Log a symptom" / "I had another episode" | `log-symptom` | Records an episode in specialist-ready detail, flags time-critical follow-ups |
-| "Make me a health report" | `health-report` | Generates a printable, doctor-ready health assessment |
-| "Analyze my DNA" | `analyze-genome` | Runs the genetic pipeline on their raw 23andMe/AncestryDNA export |
+1. Open the **Claude** app on your computer (get it at [claude.ai/download](https://claude.ai/download);
+   you'll need the **Pro** plan, which includes the feature we use, called **Cowork**).
+2. Start a **Cowork** session.
+3. Paste this into the chat:
 
-Their records and DNA live in a **folder on their own computer** that they connect to Cowork.
-Only public reference data (ClinVar, PharmGKB) ships in the plugin.
+   > **Set me up with this health assistant: https://github.com/csells/health-tracker — read the
+   > page and walk me through it.**
 
-## How they install it
+Claude will read this page and take it from there — it'll tell you exactly what to click, ask you
+the questions it needs, and build your health folder for you. **You can just talk to it.**
 
-See **[SETUP.md](SETUP.md)** — a plain-English guide written for the non-technical user. The short
-version:
+If you'd rather do it by hand, the steps are spelled out further down.
 
-1. Install the Claude desktop app and sign in (Pro plan or higher — Cowork is included).
-2. In Cowork: **Customize → Plugins → Add marketplace**, enter this repo (`owner/health-tracker`).
-3. Install the **health-archive** plugin.
-4. Make a folder for their health data, connect it in Cowork, and say "set up my health archive."
+---
 
-## Repository layout
+## 🤖 For Claude: how to onboard this person
+
+*If someone has pasted you this link and asked for help setting up, this section is for you. They
+are **not technical**. Don't show them file paths, JSON, or terminal commands. Just talk them
+through it and do everything you can on their behalf.*
+
+**Step 1 — Have them install the plugin. This is the one thing you cannot do for them.**
+
+Plugin installation is a deliberate security boundary: a plugin can ship executables and hooks, so
+**a human has to approve it by hand.** Don't try to work around this. Walk them through it warmly:
+
+> In the sidebar, click **Customize**, then **Plugins**. Click **Add marketplace**, and paste in:
+> `csells/health-tracker`. Then click **Install** on the plugin called **health-archive**. Tell me
+> when it's done.
+
+Wait for them to confirm. If they get stuck, help them find the buttons — don't move on without it,
+because none of the skills exist until they do this.
+
+**Step 2 — Have them pick a folder.**
+
+Ask them to make a folder for their health information (Documents → "My Health" is a fine default),
+and connect it in Cowork. It can be empty; you'll fill it.
+
+**Step 3 — Run the setup.**
+
+Once the plugin is installed and the folder is connected, the **setup-archive** skill takes over.
+It interviews them and builds everything. Just start it.
+
+---
+
+## What you can do once it's running
+
+Talk in plain language. Claude picks the right tool automatically.
+
+| Say this | What happens |
+|---|---|
+| *"Set up my health archive"* | Asks you some questions and builds your folders and profile |
+| *"File my new records"* | Sorts and files any documents you dropped in the **intake** folder |
+| *"I had an episode last night"* | Records the symptom properly, and flags anything time-sensitive |
+| *"Make me a health report"* | Builds a printable summary you can hand a doctor |
+| *"Analyze my DNA"* | Runs a genetic health report on your raw 23andMe/AncestryDNA file |
+
+**Adding records:** drop PDFs (labs, visit notes, anything) into the **intake** folder, then say
+*"file my new records."*
+
+**Adding your DNA (optional):** download the **raw data** file from 23andMe or AncestryDNA, put it
+in **records → genome**, and say *"analyze my DNA."* If it came as a `.zip`, unzip it first.
+
+---
+
+## Doing it by hand instead
+
+If you'd rather not have Claude walk you through it:
+
+1. Install the **Claude** app and sign in. You need the **Pro** plan or higher.
+2. Start a **Cowork** session.
+3. **Customize → Plugins → Add marketplace** → enter `csells/health-tracker` → **Install** the
+   **health-archive** plugin.
+4. Make a folder for your health information and connect it in Cowork.
+5. Say: **"Set up my health archive."**
+
+---
+
+## Things worth knowing
+
+- **Your records stay yours.** Everything lives in the folder on your computer. Your medical
+  documents and DNA are never uploaded to this project or to GitHub. Only public medical reference
+  data ships with the plugin.
+- **Your originals are safe.** The assistant is built to *never* delete or change an original
+  document you add. It only ever adds. Duplicates get set aside for you to delete — it won't delete
+  them for you.
+- **Turn off training on your chats.** Given what's in here, it's worth going into the Claude app's
+  **Privacy** settings and turning off using your conversations to improve their models.
+- **Put the folder somewhere backed up** — the same place your other important documents live.
+- **This is not a doctor.** Everything it produces is meant to make conversations with your real
+  doctors better, not to replace them. The DNA analysis reads consumer genotyping data, which can
+  produce false positives; treat anything it finds as something to *ask a professional about*, not
+  as a diagnosis.
+
+---
+
+## For whoever maintains this
+
+**Repository layout**
 
 ```
-.claude-plugin/marketplace.json     ← marketplace manifest (lists the plugin)
+.claude-plugin/marketplace.json     ← marketplace manifest
 plugins/health-archive/
   .claude-plugin/plugin.json         ← plugin manifest
   version.json                       ← bump to push an update to installed users
-  skills/                            ← the five skills (setup, file, log, report, genome)
-  scripts/                           ← the genetic-analysis pipeline (Python stdlib only)
-  reference/                         ← public ClinVar + PharmGKB data, gzipped (lossless)
-SETUP.md                            ← non-technical setup guide for the end user
+  skills/                            ← setup-archive, file-records, log-symptom,
+                                       health-report, analyze-genome
+  scripts/                           ← genetic-analysis pipeline (Python stdlib only)
+  reference/                         ← public ClinVar + PharmGKB data, gzipped
 ```
 
-## About the reference data (why it's gzipped)
+**Pushing updates.** Because this is a git-backed marketplace, you can fix things without touching
+the user's machine: edit, bump `version` in `version.json` and `plugin.json`, commit, push. The user
+clicks **Update** on the marketplace and gets the change.
 
-The genetic pipeline reads two public datasets: **ClinVar** (341,375 variants) and **PharmGKB**.
-The raw ClinVar file is 289 MB — too large to host on GitHub (100 MB/file limit) and over the
-plugin size cap. It's stored gzipped (~27 MB total) and read directly by the pipeline via Python's
-`gzip` module.
+**The reference data.** The pipeline reads ClinVar (341,375 variants) and PharmGKB. Raw ClinVar is
+289 MB — over GitHub's 100 MB/file limit and the 200 MB plugin cap. It ships **gzipped** (~27 MB
+total) and is read directly via Python's `gzip` module, streaming row-by-row.
 
-**Nothing was filtered out.** The compression is byte-for-byte lossless: every row, every column of
-the original is recoverable (verified by SHA-256), and the pipeline produces identical findings to
-the uncompressed original (verified by a seed-pinned output diff). To refresh the data later,
-download the latest ClinVar/PharmGKB TSVs, gzip them into `reference/`, and bump `version.json`.
+**Nothing was filtered out.** The compression is byte-for-byte lossless — every row and column is
+recoverable (verified by SHA-256), and the pipeline produces findings identical to the uncompressed
+original (verified by a seed-pinned diff of every output file). To refresh: download the latest
+ClinVar/PharmGKB TSVs, gzip them into `reference/`, bump the version.
 
-## Pushing updates to users
-
-Because this is a git-backed marketplace, you stay able to fix things without touching the user's
-machine:
-
-1. Edit a skill or the pipeline here.
-2. Bump `version` in `plugins/health-archive/version.json` (and `plugin.json`).
-3. Commit and push.
-4. The user clicks **Update** on the marketplace in Cowork and gets the change.
-
-## Privacy model
-
-- **Public repo is fine.** The plugin contains only generic skills and public reference data — no
-  PHI. Public repos clone anonymously, so there's no auth friction for the user.
-- **The user's data never comes here.** Records, genome, and reports live only in the local folder
-  they connect to Cowork. Nothing in this repo, and nothing pushed to GitHub, is theirs.
-
-## Not medical advice
-
-Everything generated is AI-assisted synthesis of the user's own documents and public research data.
-It exists to make conversations with real clinicians more productive — not to replace them. The
-genetic analysis reads consumer genotyping data, which has false positives; findings are prompts to
-discuss with a doctor or genetic counselor, not diagnoses.
+**Privacy model.** A public repo is fine and preferable — the plugin holds only generic skills and
+public reference data, no PHI, and public repos clone anonymously so the user hits no auth friction.
