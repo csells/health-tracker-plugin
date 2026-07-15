@@ -218,10 +218,12 @@ COMPREHENSIVE_SNPS = {
     "rs4880": {
         "gene": "SOD2", "category": "Detoxification",
         "variants": {
-            "AA": {"status": "high_activity", "desc": "High SOD2 activity (Ala/Ala) - efficient mitochondrial antioxidant", "magnitude": 1},
+            # Orientation fix: on the reported strand A = Val (low activity), G = Ala (high
+            # activity). AA is the lower-activity genotype, GG the higher.
+            "AA": {"status": "low_activity", "desc": "Lower SOD2 activity (Val/Val) - may benefit from antioxidant support", "magnitude": 2},
             "AG": {"status": "intermediate", "desc": "Intermediate SOD2 activity", "magnitude": 0},
             "GA": {"status": "intermediate", "desc": "Intermediate SOD2 activity", "magnitude": 0},
-            "GG": {"status": "low_activity", "desc": "Lower SOD2 activity (Val/Val) - may benefit from antioxidant support", "magnitude": 2},
+            "GG": {"status": "high_activity", "desc": "High SOD2 activity (Ala/Ala) - efficient mitochondrial antioxidant", "magnitude": 1},
         }
     },
 
@@ -259,10 +261,14 @@ COMPREHENSIVE_SNPS = {
     "rs25531": {
         "gene": "SLC6A4", "category": "Neurotransmitters",
         "variants": {
-            "AA": {"status": "low_expression", "desc": "Low serotonin transporter expression (La/La) - may be more responsive to SSRIs", "magnitude": 1},
+            # Label fix: A = LA (high-expressing) allele, G = LG (low-expressing). The SSRI advice
+            # was already on the right genotype; only the expression words were swapped.
+            # Caveat: the full phenotype needs the 5-HTTLPR L/S length polymorphism, which SNP
+            # arrays do not genotype, so rs25531 alone is a weak proxy.
+            "AA": {"status": "high_expression", "desc": "Higher serotonin transporter expression (La/La) - may be more responsive to SSRIs", "magnitude": 1},
             "AG": {"status": "intermediate", "desc": "Intermediate serotonin transporter", "magnitude": 0},
             "GA": {"status": "intermediate", "desc": "Intermediate serotonin transporter", "magnitude": 0},
-            "GG": {"status": "high_expression", "desc": "Higher serotonin transporter expression - may need higher SSRI doses", "magnitude": 1},
+            "GG": {"status": "low_expression", "desc": "Lower serotonin transporter expression (Lg/Lg) - may need higher SSRI doses", "magnitude": 1},
         }
     },
     "rs1800497": {
@@ -329,31 +335,29 @@ COMPREHENSIVE_SNPS = {
             "CC": {"status": "evening_type", "desc": "CLOCK 3111C homozygous - evening chronotype, may have delayed sleep phase", "magnitude": 2},
         }
     },
-    "rs57875989": {
-        "gene": "PER2", "category": "Sleep/Circadian",
-        "variants": {
-            "CC": {"status": "normal", "desc": "Normal PER2 - standard circadian period", "magnitude": 0},
-            "CG": {"status": "morning_tendency", "desc": "PER2 variant - tendency toward morning chronotype", "magnitude": 1},
-            "GC": {"status": "morning_tendency", "desc": "PER2 variant - tendency toward morning chronotype", "magnitude": 1},
-            "GG": {"status": "morning_type", "desc": "PER2 variant homozygous - strong morning chronotype", "magnitude": 2},
-        }
-    },
+    # rs57875989 was removed: it was labeled PER2 with C/G SNP keys, but the rsid is
+    # actually a PER3 54-bp VNTR (insertion/deletion), not a C/G SNP. SNP arrays don't
+    # reliably type it and the C/G keys matched nothing real, so it is dropped rather
+    # than shipped mislabeled.
     "rs12649507": {
-        "gene": "ARNTL", "category": "Sleep/Circadian",
+        # Gene fix: this rsid is in CLOCK (chr4q12), not ARNTL/BMAL1 (chr11).
+        "gene": "CLOCK", "category": "Sleep/Circadian",
         "variants": {
-            "AA": {"status": "normal", "desc": "Normal BMAL1 function", "magnitude": 0},
-            "AG": {"status": "altered", "desc": "BMAL1 variant - may affect circadian amplitude", "magnitude": 1},
-            "GA": {"status": "altered", "desc": "BMAL1 variant - may affect circadian amplitude", "magnitude": 1},
-            "GG": {"status": "significantly_altered", "desc": "BMAL1 variant homozygous - may have weaker circadian rhythm", "magnitude": 2},
+            "AA": {"status": "normal", "desc": "Typical CLOCK genotype", "magnitude": 0},
+            "AG": {"status": "altered", "desc": "CLOCK rs12649507 variant - associated with sleep-duration differences", "magnitude": 1},
+            "GA": {"status": "altered", "desc": "CLOCK rs12649507 variant - associated with sleep-duration differences", "magnitude": 1},
+            "GG": {"status": "significantly_altered", "desc": "CLOCK rs12649507 homozygous - associated with sleep-duration differences", "magnitude": 2},
         }
     },
     "rs28532698": {
+        # Magnitude softened: this SNP is poorly characterized (the established MTNR1B
+        # T2D/circadian variant is rs10830963); strong diabetes claims are not warranted.
         "gene": "MTNR1B", "category": "Sleep/Circadian",
         "variants": {
-            "CC": {"status": "normal", "desc": "Normal melatonin receptor", "magnitude": 0},
-            "CT": {"status": "altered", "desc": "MTNR1B variant - altered melatonin signaling, higher T2D risk with late eating", "magnitude": 2},
-            "TC": {"status": "altered", "desc": "MTNR1B variant - altered melatonin signaling, higher T2D risk with late eating", "magnitude": 2},
-            "TT": {"status": "significantly_altered", "desc": "MTNR1B variant homozygous - avoid late-night eating, higher diabetes risk", "magnitude": 3},
+            "CC": {"status": "normal", "desc": "Typical MTNR1B genotype", "magnitude": 0},
+            "CT": {"status": "altered", "desc": "MTNR1B rs28532698 variant - possible effect on melatonin signaling (limited evidence)", "magnitude": 1},
+            "TC": {"status": "altered", "desc": "MTNR1B rs28532698 variant - possible effect on melatonin signaling (limited evidence)", "magnitude": 1},
+            "TT": {"status": "altered", "desc": "MTNR1B rs28532698 homozygous - possible effect on melatonin signaling (limited evidence)", "magnitude": 1},
         }
     },
 
@@ -371,12 +375,15 @@ COMPREHENSIVE_SNPS = {
         }
     },
     "rs4994": {
+        # Orientation + direction fix: consumer arrays report this on the plus strand as
+        # A/G (A = Trp64 wild-type/normal, G = Arg64 variant/reduced). The old C/T keys
+        # both never matched real data AND had the direction reversed.
         "gene": "ADRB3", "category": "Fitness",
         "variants": {
-            "CC": {"status": "normal", "desc": "Normal beta-3 adrenergic receptor - standard fat mobilization", "magnitude": 0},
-            "CT": {"status": "reduced", "desc": "ADRB3 Trp64Arg heterozygous - reduced fat mobilization, may resist weight loss", "magnitude": 2},
-            "TC": {"status": "reduced", "desc": "ADRB3 Trp64Arg heterozygous - reduced fat mobilization, may resist weight loss", "magnitude": 2},
-            "TT": {"status": "significantly_reduced", "desc": "ADRB3 Arg/Arg - lower metabolic rate, weight loss more difficult", "magnitude": 3},
+            "AA": {"status": "normal", "desc": "Normal beta-3 adrenergic receptor (Trp64/Trp64) - standard fat mobilization", "magnitude": 0},
+            "AG": {"status": "reduced", "desc": "ADRB3 Trp64Arg heterozygous - reduced fat mobilization, may resist weight loss", "magnitude": 2},
+            "GA": {"status": "reduced", "desc": "ADRB3 Trp64Arg heterozygous - reduced fat mobilization, may resist weight loss", "magnitude": 2},
+            "GG": {"status": "significantly_reduced", "desc": "ADRB3 Arg64/Arg64 - lower metabolic rate, weight loss may be more difficult", "magnitude": 3},
         }
     },
     "rs1042713": {
@@ -400,34 +407,31 @@ COMPREHENSIVE_SNPS = {
     "rs4253778": {
         "gene": "PPARA", "category": "Fitness",
         "variants": {
-            "GG": {"status": "normal", "desc": "Normal PPAR-alpha - standard fat oxidation", "magnitude": 0},
-            "GC": {"status": "enhanced", "desc": "PPARA intron 7 C allele - enhanced fat oxidation capacity", "magnitude": 1},
-            "CG": {"status": "enhanced", "desc": "PPARA intron 7 C allele - enhanced fat oxidation capacity", "magnitude": 1},
-            "CC": {"status": "highly_enhanced", "desc": "PPARA C/C - superior fat oxidation, endurance advantage", "magnitude": 2},
+            # Direction fix: the G allele is endurance-associated (higher fat oxidation, more
+            # slow-twitch fibers); the C allele is power/strength-associated.
+            "GG": {"status": "highly_enhanced", "desc": "PPARA G/G - endurance-favorable: higher fat oxidation and slow-twitch fiber proportion", "magnitude": 2},
+            "GC": {"status": "enhanced", "desc": "PPARA heterozygous - mixed metabolic/fiber profile", "magnitude": 1},
+            "CG": {"status": "enhanced", "desc": "PPARA heterozygous - mixed metabolic/fiber profile", "magnitude": 1},
+            "CC": {"status": "normal", "desc": "PPARA C/C - power/strength-oriented, higher muscle mass", "magnitude": 0},
         }
     },
     "rs1799752": {
+        # ACE I/D is a large insertion/deletion that consumer SNP arrays genotype
+        # unreliably (often no-call). The rs4343 A/G proxy below is the dependable
+        # ACE marker; the spurious G/T keys that used to be here never matched real
+        # data and have been removed.
         "gene": "ACE", "category": "Fitness",
         "variants": {
             "DD": {"status": "power", "desc": "ACE D/D - higher ACE activity, power/strength advantage", "magnitude": 2},
             "DI": {"status": "mixed", "desc": "ACE D/I - balanced ACE activity", "magnitude": 1},
             "ID": {"status": "mixed", "desc": "ACE I/D - balanced ACE activity", "magnitude": 1},
             "II": {"status": "endurance", "desc": "ACE I/I - lower ACE activity, endurance advantage, better altitude adaptation", "magnitude": 2},
-            "GG": {"status": "power", "desc": "ACE D/D equivalent - power advantage", "magnitude": 2},
-            "GT": {"status": "mixed", "desc": "ACE heterozygous", "magnitude": 1},
-            "TG": {"status": "mixed", "desc": "ACE heterozygous", "magnitude": 1},
-            "TT": {"status": "endurance", "desc": "ACE I/I equivalent - endurance advantage", "magnitude": 2},
         }
     },
-    "rs7181866": {
-        "gene": "COL5A1", "category": "Fitness",
-        "variants": {
-            "CC": {"status": "flexible", "desc": "COL5A1 C/C - more flexible tendons, lower injury risk", "magnitude": 1},
-            "CT": {"status": "intermediate", "desc": "COL5A1 heterozygous - intermediate tendon properties", "magnitude": 0},
-            "TC": {"status": "intermediate", "desc": "COL5A1 heterozygous - intermediate tendon properties", "magnitude": 0},
-            "TT": {"status": "stiff", "desc": "COL5A1 T/T - stiffer tendons, higher injury risk, more warm-up needed", "magnitude": 2},
-        }
-    },
+    # rs7181866 was removed: it was labeled COL5A1 with C/T alleles, but the rsid is
+    # actually GABPB1 (an A/G SNP), so the C/T keys never matched real data and the
+    # gene/phenotype label was wrong. Rather than ship a mislabeled fitness marker, it
+    # is dropped. (COL1A1 rs1800012 below still covers collagen/connective tissue.)
     "rs1800012": {
         "gene": "COL1A1", "category": "Fitness",
         "variants": {
@@ -472,10 +476,12 @@ COMPREHENSIVE_SNPS = {
     "rs5082": {
         "gene": "APOA2", "category": "Nutrition",
         "variants": {
-            "GG": {"status": "normal", "desc": "Normal APOA2 - standard saturated fat response", "magnitude": 0},
-            "GA": {"status": "intermediate", "desc": "APOA2 -265T>C heterozygous - intermediate sat fat sensitivity", "magnitude": 1},
-            "AG": {"status": "intermediate", "desc": "APOA2 -265T>C heterozygous - intermediate sat fat sensitivity", "magnitude": 1},
-            "AA": {"status": "sensitive", "desc": "APOA2 C/C - saturated fat intake strongly linked to obesity, limit sat fat", "magnitude": 2},
+            # Orientation fix: in 23andMe A/G orientation the risk (C) allele is reported as G,
+            # so GG is the sat-fat-sensitive genotype and AA is typical.
+            "GG": {"status": "sensitive", "desc": "APOA2 risk genotype - saturated fat intake more strongly linked to weight gain; favor unsaturated fats", "magnitude": 2},
+            "GA": {"status": "intermediate", "desc": "APOA2 heterozygous - intermediate saturated fat sensitivity", "magnitude": 1},
+            "AG": {"status": "intermediate", "desc": "APOA2 heterozygous - intermediate saturated fat sensitivity", "magnitude": 1},
+            "AA": {"status": "normal", "desc": "APOA2 typical genotype - standard saturated fat response", "magnitude": 0},
         }
     },
     "rs174547": {
@@ -490,19 +496,23 @@ COMPREHENSIVE_SNPS = {
     "rs4988235": {
         "gene": "MCM6/LCT", "category": "Nutrition",
         "variants": {
-            "AA": {"status": "lactose_intolerant", "desc": "Lactase non-persistence - lactose intolerance in adulthood", "magnitude": 2},
+            # Orientation fix: the persistence (T) allele is reported as A in 23andMe A/G
+            # orientation, so AA is lactose-tolerant and GG is non-persistent (intolerant).
+            "AA": {"status": "tolerant", "desc": "Lactase persistence - maintains lactase production, lactose tolerant", "magnitude": 0},
             "AG": {"status": "tolerant", "desc": "Lactase persistence heterozygous - likely lactose tolerant", "magnitude": 0},
             "GA": {"status": "tolerant", "desc": "Lactase persistence heterozygous - likely lactose tolerant", "magnitude": 0},
-            "GG": {"status": "tolerant", "desc": "Lactase persistence - maintains lactase production, lactose tolerant", "magnitude": 0},
+            "GG": {"status": "lactose_intolerant", "desc": "Lactase non-persistence - lactose intolerance common in adulthood", "magnitude": 2},
         }
     },
     "rs2282679": {
         "gene": "GC", "category": "Nutrition",
         "variants": {
-            "GG": {"status": "normal", "desc": "Normal vitamin D binding protein - adequate vitamin D transport", "magnitude": 0},
+            # Orientation fix: the low-vitamin-D (G) allele is the risk allele; GG has the lowest
+            # measured 25-OH-D and TT the highest.
+            "GG": {"status": "low", "desc": "GC low-vitamin-D genotype - genetically lower vitamin D, supplementation often needed especially in northern latitudes", "magnitude": 2},
             "GT": {"status": "reduced", "desc": "GC variant heterozygous - lower vitamin D levels common", "magnitude": 1},
             "TG": {"status": "reduced", "desc": "GC variant heterozygous - lower vitamin D levels common", "magnitude": 1},
-            "TT": {"status": "low", "desc": "GC T/T - genetically low vitamin D, supplementation often needed especially in northern latitudes", "magnitude": 2},
+            "TT": {"status": "normal", "desc": "GC typical genotype - adequate vitamin D binding protein", "magnitude": 0},
         }
     },
     "rs12934922": {
@@ -719,10 +729,12 @@ COMPREHENSIVE_SNPS = {
     "rs2228479": {
         "gene": "MC1R", "category": "Skin",
         "variants": {
-            "AA": {"status": "normal", "desc": "Normal MC1R Val92Met", "magnitude": 0},
-            "AG": {"status": "variant", "desc": "MC1R V92M heterozygous - slightly increased skin aging risk", "magnitude": 1},
-            "GA": {"status": "variant", "desc": "MC1R V92M heterozygous - slightly increased skin aging risk", "magnitude": 1},
-            "GG": {"status": "accelerated", "desc": "MC1R V92M homozygous - may show accelerated skin aging", "magnitude": 2},
+            # Orientation fix: G (Val92, wild-type) is typical; A (Met92, the V92M variant) is the
+            # risk allele, so AA is the accelerated/higher-risk genotype and GG is typical.
+            "GG": {"status": "normal", "desc": "MC1R Val92/Val92 - typical", "magnitude": 0},
+            "AG": {"status": "variant", "desc": "MC1R V92M heterozygous - slightly increased skin aging / sun sensitivity", "magnitude": 1},
+            "GA": {"status": "variant", "desc": "MC1R V92M heterozygous - slightly increased skin aging / sun sensitivity", "magnitude": 1},
+            "AA": {"status": "accelerated", "desc": "MC1R V92M homozygous - may show accelerated skin aging / higher sun sensitivity", "magnitude": 2},
         }
     },
 
@@ -742,19 +754,23 @@ COMPREHENSIVE_SNPS = {
     "rs1042522": {
         "gene": "TP53", "category": "Longevity",
         "variants": {
-            "GG": {"status": "pro72", "desc": "TP53 Pro72 - more efficient apoptosis, may be protective against cancer", "magnitude": 1},
+            # Description fix: Arg72 (CC) induces apoptosis more efficiently; Pro72 (GG) favors
+            # cell-cycle arrest / DNA repair. (Allele mapping was correct; wording was reversed.)
+            "GG": {"status": "pro72", "desc": "TP53 Pro72 - favors cell-cycle arrest and DNA repair over apoptosis", "magnitude": 1},
             "GC": {"status": "heterozygous", "desc": "TP53 Pro72Arg heterozygous - balanced", "magnitude": 0},
             "CG": {"status": "heterozygous", "desc": "TP53 Pro72Arg heterozygous - balanced", "magnitude": 0},
-            "CC": {"status": "arg72", "desc": "TP53 Arg72 - less efficient apoptosis", "magnitude": 1},
+            "CC": {"status": "arg72", "desc": "TP53 Arg72 - more efficient (mitochondrial) apoptosis", "magnitude": 1},
         }
     },
     "rs2542052": {
-        "gene": "CETP", "category": "Longevity",
+        # Fix: this rsid is the APOC3 -641C>A promoter variant (the Ashkenazi longevity
+        # marker), not CETP I405V (that is rs5882). The favorable/longevity genotype is CC.
+        "gene": "APOC3", "category": "Longevity",
         "variants": {
-            "CC": {"status": "normal", "desc": "Normal CETP activity - standard HDL metabolism", "magnitude": 0},
-            "CA": {"status": "favorable", "desc": "CETP I405V heterozygous - higher HDL, longevity association", "magnitude": 1},
-            "AC": {"status": "favorable", "desc": "CETP I405V heterozygous - higher HDL, longevity association", "magnitude": 1},
-            "AA": {"status": "highly_favorable", "desc": "CETP V/V - significantly higher HDL, associated with longevity", "magnitude": 2},
+            "CC": {"status": "highly_favorable", "desc": "APOC3 -641 C/C - favorable lipoprotein profile, longevity association", "magnitude": 2},
+            "CA": {"status": "favorable", "desc": "APOC3 -641 heterozygous - intermediate", "magnitude": 1},
+            "AC": {"status": "favorable", "desc": "APOC3 -641 heterozygous - intermediate", "magnitude": 1},
+            "AA": {"status": "normal", "desc": "APOC3 -641 A/A - baseline", "magnitude": 0},
         }
     },
 

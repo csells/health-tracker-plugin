@@ -11,6 +11,8 @@ Scans genome against ClinVar database to identify:
 Generates EXHAUSTIVE_DISEASE_RISK_REPORT.md
 """
 
+from __future__ import annotations
+
 import csv
 from pathlib import Path
 from collections import defaultdict

@@ -605,7 +605,7 @@ def analyze_genome(genome: dict, clinvar: dict, pharmgkb: dict) -> dict:
 def generate_report(results: dict, output_path: Path):
     """Generate comprehensive markdown report."""
 
-    with open(output_path, 'w') as f:
+    with open(output_path, 'w', encoding="utf-8") as f:
         f.write("# Comprehensive Genetic Analysis Report\n\n")
         f.write(f"Generated: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
 
@@ -819,7 +819,7 @@ def main():
 
     # Save raw results
     results_path = REPORTS_DIR / "analysis_results.json"
-    with open(results_path, 'w') as f:
+    with open(results_path, 'w', encoding="utf-8") as f:
         json.dump(results, f, indent=2)
     print(f"Raw results saved to {results_path}")
 

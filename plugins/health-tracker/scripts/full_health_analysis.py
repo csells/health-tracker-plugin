@@ -148,7 +148,7 @@ def analyze_genome(genome: dict, pharmgkb: dict) -> dict:
 def generate_comprehensive_report(results: dict, output_path: Path):
     """Generate the comprehensive health optimization report."""
 
-    with open(output_path, 'w') as f:
+    with open(output_path, 'w', encoding="utf-8") as f:
         f.write("# Complete Genetic Health Optimization Report\n\n")
         f.write(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
         f.write("---\n\n")
@@ -308,9 +308,10 @@ def write_category_interpretation(f, category: str, findings: list):
             f.write("**Recommendations:**\n")
             f.write("- Consider methylfolate (L-5-MTHF) instead of folic acid: 400-800mcg/day\n")
             f.write("- Consider methylcobalamin (B12): 1000mcg sublingual\n")
-            f.write("- Get homocysteine levels tested (optimal: <10 μmol/L)\n")
-            f.write("- Eat folate-rich foods: leafy greens, legumes, liver\n")
-            f.write("- Avoid folic acid-fortified processed foods when possible\n\n")
+            f.write("- Eat folate-rich foods: leafy greens, legumes\n")
+            f.write("- Do NOT avoid folic acid — if pregnant or trying to conceive it is the only "
+                    "form proven to prevent neural-tube defects. ACMG advises against routine "
+                    "MTHFR-based supplementation; discuss with a clinician.\n\n")
 
         comt = findings_dict.get('COMT')
         if comt and comt['status'] == 'slow':
@@ -669,7 +670,7 @@ def main():
         'summary': results['summary'],
     }
     results_path = REPORTS_DIR / "comprehensive_results.json"
-    with open(results_path, 'w') as f:
+    with open(results_path, 'w', encoding="utf-8") as f:
         json.dump(results_json, f, indent=2)
     print(f"Raw results saved to {results_path}")
 

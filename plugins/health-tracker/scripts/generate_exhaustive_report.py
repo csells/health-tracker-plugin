@@ -15,21 +15,19 @@ from pathlib import Path
 CLINICAL_CONTEXT = {
     # METHYLATION
     ("MTHFR", "significantly_reduced"): {
-        "mechanism": "The MTHFR enzyme converts folic acid to methylfolate (5-MTHF), the active form used by the body. With 70% reduced activity, you produce significantly less methylfolate, affecting over 200 methylation-dependent reactions.",
+        "mechanism": "The MTHFR enzyme helps convert folate to methylfolate (5-MTHF), an active form the body uses. The 677 TT genotype has lower in-vitro enzyme activity. This is a common variant (roughly 10-15% of people are TT), and for most people its real-world health impact is small.",
         "implications": [
-            "Elevated homocysteine levels (cardiovascular risk marker)",
-            "Reduced production of SAMe (S-adenosylmethionine), the universal methyl donor",
-            "Potential impacts on neurotransmitter synthesis, DNA repair, and detoxification",
-            "Folic acid from fortified foods may accumulate as unmetabolized folic acid (UMFA)"
+            "May modestly affect homocysteine in some people, but large studies have NOT confirmed that this variant meaningfully raises cardiovascular or clotting risk",
+            "Major genetics guidelines (ACMG) recommend AGAINST routine MTHFR genotyping because it rarely changes care",
+            "This is a common polymorphism, not a disease"
         ],
         "actions": [
-            "Use methylfolate (5-MTHF) instead of folic acid - typical dose 400-800mcg",
-            "Consider methylcobalamin (methyl-B12) rather than cyanocobalamin",
-            "Support with riboflavin (B2) which is a cofactor for MTHFR",
-            "Monitor homocysteine levels periodically",
-            "Avoid high-dose folic acid supplements and limit heavily fortified foods"
+            "No special action is required for most people",
+            "Standard folate intake is fine; methylfolate is an optional alternative if you and your clinician prefer it",
+            "IF PREGNANT OR TRYING TO CONCEIVE: keep taking folic acid — it is the only form proven to prevent neural-tube defects; do not switch away from it on the basis of this result",
+            "Discuss with a clinician before starting supplements or ordering homocysteine tests"
         ],
-        "interactions": ["Synergizes with MTRR status - both impaired compounds effect", "COMT status affects methylation demand"]
+        "interactions": ["Often discussed alongside MTRR/COMT in wellness contexts, though combined clinical significance is limited"]
     },
     ("MTRR", "significantly_reduced"): {
         "mechanism": "MTRR regenerates methylcobalamin (methyl-B12), the active form of B12. Impaired MTRR means B12 recycling is less efficient, potentially leading to functional B12 deficiency even with normal blood levels.",
@@ -282,8 +280,8 @@ CLINICAL_CONTEXT = {
         "interactions": []
     },
     # SLEEP
-    ("ARNTL", "significantly_altered"): {
-        "mechanism": "BMAL1 (ARNTL) is a core circadian clock gene. This variant may weaken circadian rhythm strength.",
+    ("CLOCK", "significantly_altered"): {
+        "mechanism": "CLOCK is a core circadian clock gene. This variant is associated with differences in sleep duration and circadian rhythm.",
         "implications": [
             "May have less robust circadian rhythm",
             "Potentially more susceptible to jet lag, shift work effects",
@@ -445,7 +443,7 @@ PATHWAYS = {
     "Drug Metabolism - Phase II": ["NAT2", "GSTP1", "UGT1A1"],
     "Lipid Metabolism": ["APOE", "APOA2", "CETP", "PPARG", "PPARA"],
     "Vitamin Metabolism": ["GC", "BCMO1", "FUT2", "MTHFR"],
-    "Circadian Rhythm": ["ARNTL", "PER2", "CLOCK"],
+    "Circadian Rhythm": ["CLOCK", "MTNR1B"],
     "Muscle & Exercise": ["ACTN3", "PPARGC1A", "ADRB2", "ACE"],
 }
 
@@ -896,13 +894,21 @@ def generate_disclaimer():
     """Generate disclaimer section."""
     return """## ⚠️ Important Disclaimer
 
-This report is for **informational and educational purposes only**. It is NOT medical advice.
+This report is for **informational and educational purposes only**. It is NOT a medical diagnosis
+and NOT medical advice.
 
 ### Key Points:
+- **This reads consumer genotyping data (23andMe/AncestryDNA), which is NOT clinical-grade.** It can
+  produce false positives and false negatives. Confirm any important finding with clinical-grade
+  testing before acting on it.
+- **A clear result here does not rule a condition out.** Genotyping arrays check only specific known
+  spots and miss most insertions, deletions, and copy-number changes — "not found" is not the same
+  as "not present."
 - Genetic associations are probabilistic, not deterministic
 - Your genes are just one factor - environment, lifestyle, and other genes matter
 - "Risk" variants don't guarantee outcomes; "protective" variants don't guarantee safety
-- Consult healthcare providers before making medical decisions
+- Being a *carrier* of a recessive condition usually does not affect your own health
+- Consult a doctor or genetic counselor before making any medical decisions
 - Some findings may have different implications in different populations
 - Genetic science evolves - recommendations may change as research advances
 
@@ -965,7 +971,7 @@ def main():
     full_report = "\n".join(report_parts)
 
     print(f"Writing report to {output_path}...")
-    with open(output_path, 'w') as f:
+    with open(output_path, 'w', encoding="utf-8") as f:
         f.write(full_report)
 
     print(f"\n✅ Report generated successfully!")

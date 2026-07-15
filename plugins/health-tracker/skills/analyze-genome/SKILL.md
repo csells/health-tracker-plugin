@@ -25,17 +25,26 @@ third-party reference data, identical for everyone; only the DNA export is perso
 
 ## How to run it
 
-The pipeline is a self-contained Python program that uses only the Python standard library — no
-package installation, no internet. Run it from the person's archive folder (the current working
-directory), pointing at the plugin's script:
+The pipeline is a self-contained Python program that uses only the Python standard library (needs
+**Python 3.9+**) — no package installation, no internet. Run it from the person's archive folder
+(the current working directory), pointing at the plugin's script:
 
 ```bash
-# CLAUDE_PLUGIN_ROOT points at this plugin's root when running inside Cowork/Claude Code.
+# macOS / Linux (CLAUDE_PLUGIN_ROOT points at this plugin's root inside Cowork/Claude Code):
 python3 "$CLAUDE_PLUGIN_ROOT/scripts/run_full_analysis.py" --name "<their name>"
 ```
 
+**On Windows**, `python3` often isn't on the PATH and the shell expands variables differently — use
+`python` or `py -3`, and the env var as `%CLAUDE_PLUGIN_ROOT%` (cmd) or `$env:CLAUDE_PLUGIN_ROOT`
+(PowerShell). For example, in PowerShell:
+
+```powershell
+python "$env:CLAUDE_PLUGIN_ROOT\scripts\run_full_analysis.py" --name "<their name>"
+```
+
 If `CLAUDE_PLUGIN_ROOT` isn't set, find `run_full_analysis.py` inside this plugin's `scripts/`
-folder and run that. It automatically:
+folder and run it with whichever Python launcher works (`python3`, `python`, or `py -3`). It
+automatically:
 - finds the single DNA export in `records/genome/`,
 - writes its reports into **`reports/genetics/`** in the person's archive (regenerable — safe to
   delete and re-run),

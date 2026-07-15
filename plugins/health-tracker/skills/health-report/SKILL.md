@@ -10,10 +10,10 @@ Generate a formatted, printable health assessment from the medical records in th
 ## ⚠️ Read this before anything else
 
 **The failure mode of this skill is paraphrasing a primary source into something that sounds more
-clinical and means something different.** This is not hypothetical: in one real archive, a
-patient's own words — *"a snow globe being shaken"* — were rewritten in a report as *"rotational
-vertigo,"* nearly the opposite sensation. That single paraphrase propagated into every downstream
-document and misdirected the patient's care for two decades. Guard against it explicitly:
+clinical and means something different.** For example, a patient's own words — the floor *"tilting
+like a boat deck"* — rewritten in a report as *"vertigo"* describe a different sensation with
+different causes; a single paraphrase like that propagates into every downstream document and can
+misdirect care for years. Guard against it explicitly:
 
 1. **Never paraphrase a patient-reported symptom. Quote it verbatim** from `records/personal/`, in
    quotation marks, and cite the file.
@@ -60,28 +60,40 @@ Organize into:
 
 ### 4. Generate the HTML report
 
-Read the template at `assets/report-template.html` (in this skill's folder) for the CSS. Create a
-complete HTML file at `reports/YYYY-MM-DD Health Assessment.html` using the template's `<style>`
-block and your synthesized content as the `<body>`.
+Read the template at `assets/report-template.html` (in this skill's folder) and reuse **both** its
+`<style>` block and the fixed `<div class="disclaimer">…</div>` that sits immediately after
+`<body>`. Create a complete HTML file at `reports/YYYY-MM-DD Health Assessment.html` with your
+synthesized content as the `<body>`.
 
 CSS classes available: `highlight` (abnormal/HIGH, red), `good` (normal, green), `disclaimer`
-(the AI-generated notice), `summary-box` (patient summary), `section-urgent` / `section-short` /
+(the notice), `summary-box` (patient summary), `section-urgent` / `section-short` /
 `section-ongoing` (recommendations by urgency), `bottom-line` (concluding synthesis),
 `page-break`, `footer`.
 
-Include the AI-generated disclaimer at the top and a footer with the report date.
+**The disclaimer is mandatory and must be the first thing in the body**, verbatim from the template:
+
+> **This is not a medical diagnosis.** An AI assistant generated this report from the person's own
+> records to support better conversations with their doctors — it does not replace a clinician, it
+> may contain errors or omissions, and it must never be used on its own to start, stop, or change
+> any treatment. Confirm anything here with a licensed professional before acting on it.
+
+Do not weaken, shorten, or move it below the findings. Also add a footer with the report date.
 
 ### 5. Convert to PDF
 
-Run the bundled converter (it tries whatever PDF engine is available and tells you which it used):
+Run the bundled converter (a cross-platform Python script — macOS, Linux, Windows — that tries
+whatever PDF engine is available and tells you which it used):
 
 ```bash
-bash scripts/html_to_pdf.sh "reports/YYYY-MM-DD Health Assessment.html" "reports/YYYY-MM-DD Health Assessment.pdf"
+# macOS / Linux:
+python3 scripts/html_to_pdf.py "reports/YYYY-MM-DD Health Assessment.html" "reports/YYYY-MM-DD Health Assessment.pdf"
+# Windows (if python3 isn't found): use `python` or `py -3` instead of `python3`.
 ```
 
 If no PDF engine is available in the environment, the script says so and **leaves the HTML file in
 place** — it opens in any browser and prints to PDF from there. Do not treat a missing PDF engine
-as a failure of the report; the HTML *is* the report.
+as a failure of the report; the HTML *is* the report. (In the Cowork sandbox there is usually no
+browser installed, so expect the HTML fallback there — that is by design, not an error.)
 
 ### 6. Verify and update the living documents
 

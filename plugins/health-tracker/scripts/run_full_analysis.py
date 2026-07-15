@@ -30,6 +30,18 @@ from repo_paths import (DATA_DIR, REPORTS_DIR, DEFAULT_GENOME_HELP,
                         ensure_reports_dir)
 
 
+# A short caveat placed at the TOP of every generated report, so the most
+# important warnings are read before any finding — not buried at the end.
+TOP_CAVEAT = (
+    "> ⚠️ **Informational only — not a diagnosis and not medical advice.**\n"
+    "> This reads **consumer** genotyping data (23andMe/AncestryDNA), which is **not clinical-grade\n"
+    "> and can produce false positives and false negatives**. Genotyping arrays also miss most\n"
+    "> insertions, deletions, and copy-number changes, so a clear result here does **not** rule a\n"
+    "> condition out. Discuss anything that concerns you with a doctor or genetic counselor, and\n"
+    "> confirm important findings with clinical-grade testing before acting. Full disclaimer at the end.\n"
+)
+
+
 def print_header(text):
     """Print a formatted header."""
     print()
@@ -215,6 +227,29 @@ def analyze_lifestyle_health(genome_by_rsid: dict, pharmgkb: dict) -> dict:
 # DISEASE RISK ANALYSIS
 # =============================================================================
 
+def genotype_call(user_genotype: str, ref_allele: str, alt_allele: str):
+    """Determine variant presence and zygosity from a raw genotype call.
+
+    Handles diploid calls ("AA", "AG") and, critically, HAPLOID single-character
+    calls. Consumer arrays report a single allele at haploid loci: every
+    mitochondrial variant (for everyone) and the non-pseudoautosomal X/Y in
+    males. A single copy of the alt allele there is homoplasmic (mtDNA) or
+    hemizygous (X/Y) and is fully expressed -- it must NOT be downgraded to
+    "heterozygous", which would hide a real affected state.
+
+    Returns (has_variant, is_homozygous, is_hemizygous, is_heterozygous,
+    has_ref_only). Assumes single-base ref/alt (callers skip indels).
+    """
+    is_haploid = len(user_genotype) == 1
+    has_variant = alt_allele in user_genotype
+    is_homozygous = user_genotype == alt_allele + alt_allele
+    is_hemizygous = is_haploid and user_genotype == alt_allele
+    is_heterozygous = has_variant and not is_homozygous and not is_hemizygous
+    has_ref_only = (user_genotype == ref_allele + ref_allele
+                    or (is_haploid and user_genotype == ref_allele))
+    return has_variant, is_homozygous, is_hemizygous, is_heterozygous, has_ref_only
+
+
 def load_clinvar_and_analyze(genome_by_position: dict) -> tuple:
     """Load ClinVar and analyze for disease variants."""
     clinvar_path = data_file("clinvar_alleles.tsv")
@@ -238,7 +273,8 @@ def load_clinvar_and_analyze(genome_by_position: dict) -> tuple:
         'total_clinvar': 0,
         'matched': 0,
         'pathogenic_matched': 0,
-        'likely_pathogenic_matched': 0
+        'likely_pathogenic_matched': 0,
+        'skipped_non_snv': 0,
     }
 
     with open_data(clinvar_path) as f:
@@ -262,14 +298,16 @@ def load_clinvar_and_analyze(genome_by_position: dict) -> tuple:
             alt_allele = row['alt']
             clinical_sig = row['clinical_significance'].lower()
 
-            # Only process true SNPs
+            # Only process true SNPs. Genotyping arrays can't detect most
+            # insertions/deletions, so ClinVar indels at a matched position are
+            # unevaluable here; count them so the omission is visible, not silent.
             if len(ref_allele) != 1 or len(alt_allele) != 1:
+                stats['skipped_non_snv'] += 1
                 continue
 
-            has_variant = alt_allele in user_genotype
-            is_homozygous = user_genotype == alt_allele + alt_allele
-            is_heterozygous = has_variant and not is_homozygous
-            has_ref_only = user_genotype == ref_allele + ref_allele
+            (has_variant, is_homozygous, is_hemizygous,
+             is_heterozygous, has_ref_only) = genotype_call(
+                user_genotype, ref_allele, alt_allele)
 
             if has_ref_only or not has_variant:
                 continue
@@ -283,6 +321,7 @@ def load_clinvar_and_analyze(genome_by_position: dict) -> tuple:
                 'alt': alt_allele,
                 'user_genotype': user_genotype,
                 'is_homozygous': is_homozygous,
+                'is_hemizygous': is_hemizygous,
                 'is_heterozygous': is_heterozygous,
                 'clinical_significance': row['clinical_significance'],
                 'review_status': row['review_status'],
@@ -314,6 +353,9 @@ def load_clinvar_and_analyze(genome_by_position: dict) -> tuple:
     print(f"    Pathogenic variants: {stats['pathogenic_matched']}")
     print(f"    Likely pathogenic: {stats['likely_pathogenic_matched']}")
     print(f"    Risk factors: {len(findings['risk_factor'])}")
+    if stats['skipped_non_snv']:
+        print(f"    Skipped {stats['skipped_non_snv']} non-SNV (indel/MNV) variants "
+              f"at matched positions -- arrays can't type these; confirm via clinical sequencing")
 
     return findings, stats
 
@@ -324,6 +366,8 @@ def classify_zygosity(finding):
 
     if finding['is_homozygous']:
         return 'AFFECTED', 'Homozygous for variant'
+    elif finding.get('is_hemizygous'):
+        return 'AFFECTED', 'Hemizygous/homoplasmic for variant (mtDNA or X/Y)'
     elif finding['is_heterozygous']:
         if 'recessive' in inheritance:
             return 'CARRIER', 'Heterozygous carrier (recessive)'
@@ -369,14 +413,15 @@ def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject
 
     full_report = "\n".join(report_parts)
 
-    # Add subject name if provided
-    if subject_name:
-        full_report = full_report.replace(
-            "# Exhaustive Genetic Health Report",
-            f"# Exhaustive Genetic Health Report\n\n**Subject:** {subject_name}"
-        )
+    # Add subject name (if provided) and the top caveat, right after the title.
+    subject_block = f"\n\n**Subject:** {subject_name}" if subject_name else ""
+    full_report = full_report.replace(
+        "# Exhaustive Genetic Health Report",
+        f"# Exhaustive Genetic Health Report{subject_block}\n\n{TOP_CAVEAT}",
+        1
+    )
 
-    with open(output_path, 'w') as f:
+    with open(output_path, 'w', encoding="utf-8") as f:
         f.write(full_report)
 
     print(f"    Written to: {output_path}")
@@ -419,6 +464,7 @@ def generate_disease_risk_report(findings: dict, stats: dict, genome_count: int,
 {subject_line}
 **Generated:** {now}
 
+{TOP_CAVEAT}
 ---
 
 ## Executive Summary
@@ -445,13 +491,16 @@ def generate_disease_risk_report(findings: dict, stats: dict, genome_count: int,
     # Affected section
     if affected:
         report += "## Pathogenic Variants - Affected Status\n\n"
+        report += ("**Consumer genotyping can produce false positives — confirm any variant below "
+                   "with clinical-grade testing before acting, and review it with a genetic "
+                   "counselor or physician.**\n\n")
         for f in affected:
             stars = '*' * f['gold_stars'] + '.' * (4 - f['gold_stars'])
             report += f"""### {f['gene']} - {f['traits'].split(';')[0] if f['traits'] else 'Unknown'}
 
 - **Position:** chr{f['chromosome']}:{f['position']}
 - **RSID:** {f['rsid']}
-- **Genotype:** `{f['user_genotype']}` ({'Homozygous' if f['is_homozygous'] else 'Heterozygous'})
+- **Genotype:** `{f['user_genotype']}` ({'Homozygous' if f['is_homozygous'] else 'Hemizygous/homoplasmic' if f.get('is_hemizygous') else 'Heterozygous'})
 - **Variant:** {f['ref']} -> {f['alt']}
 - **Confidence:** {stars} ({f['gold_stars']}/4)
 - **Condition:** {f['traits'] if f['traits'] else 'Not specified'}
@@ -518,16 +567,21 @@ def generate_disease_risk_report(findings: dict, stats: dict, genome_count: int,
 
 This report is for **informational purposes only**. It is NOT a clinical diagnosis.
 
+- **Consumer genotyping (23andMe/AncestryDNA) is not clinical-grade and can produce false positives
+  and false negatives** — confirm any finding with clinical-grade testing before acting.
+- Genotyping arrays miss most insertions, deletions, and copy-number changes, so "not found" here is
+  not the same as "not present."
 - Consult a genetic counselor or physician for clinical interpretation
+- Being a *carrier* of a recessive condition usually does not affect your own health; it mainly
+  matters for family planning
 - Variant classifications may change as research progresses
-- Carrier status has reproductive implications
 
 ---
 
 *Generated using ClinVar database*
 """
 
-    with open(output_path, 'w') as f:
+    with open(output_path, 'w', encoding="utf-8") as f:
         f.write(report)
 
     print(f"    Written to: {output_path}")
@@ -544,6 +598,20 @@ def generate_actionable_protocol(health_results: dict, disease_findings: dict,
     # Build lookup dictionaries
     findings_dict = {f['gene']: f for f in health_results['findings']}
 
+    def gene_is_notable(gene):
+        """True only when the gene's genotype is a non-normal (risk-bearing) one.
+
+        Every genotype that matches the database becomes a finding -- including the
+        NORMAL genotype (magnitude 0). Recommendations must gate on this, or they
+        fire for people whose result is normal and, e.g., tell a non-carrier they
+        are an 'HFE carrier'.
+        """
+        f = findings_dict.get(gene)
+        if not f:
+            return False
+        status = (f.get('status') or '').lower()
+        return f.get('magnitude', 0) >= 1 and status not in ('normal', '')
+
     # Classify disease findings
     affected = []
     carriers = []
@@ -552,7 +620,7 @@ def generate_actionable_protocol(health_results: dict, disease_findings: dict,
     if disease_findings:
         for f in disease_findings.get('pathogenic', []) + disease_findings.get('likely_pathogenic', []):
             inheritance = f.get('inheritance', '').lower()
-            if f.get('is_homozygous'):
+            if f.get('is_homozygous') or f.get('is_hemizygous'):
                 affected.append(f)
             elif f.get('is_heterozygous'):
                 if 'recessive' in inheritance:
@@ -572,6 +640,12 @@ def generate_actionable_protocol(health_results: dict, disease_findings: dict,
     report = f"""# Actionable Health Protocol (V3)
 {subject_line}
 **Generated:** {now}
+
+{TOP_CAVEAT}
+**Any supplement, dose, or dietary change below is a starting point for a conversation with a
+clinician or pharmacist — not a prescription. Do not start, stop, or change anything (including
+folic acid, vitamin A, or vitamin D) without professional advice, especially if you are pregnant,
+could become pregnant, or take other medications.**
 
 This protocol synthesizes ALL genetic findings into concrete recommendations:
 - Lifestyle/health genetics ({total_lifestyle} findings)
@@ -652,11 +726,14 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
     # MTHFR
     if 'MTHFR' in findings_dict and findings_dict['MTHFR']['magnitude'] >= 2:
         supplements.append({
-            'name': 'Methylfolate (L-5-MTHF)',
-            'dose': '400-800mcg daily',
-            'reason': 'MTHFR variant reduces folic acid conversion',
+            'name': 'Folate (methylfolate or standard folic acid)',
+            'dose': 'Standard RDA; 400-800mcg if supplementing',
+            'reason': 'Common MTHFR variant; effect on most people is small',
             'source': 'MTHFR (lifestyle)',
-            'notes': 'Avoid synthetic folic acid. Start low if slow COMT.'
+            'notes': ('Standard folic acid works for most people; methylfolate is one alternative. '
+                      'IF PREGNANT OR TRYING TO CONCEIVE, KEEP TAKING FOLIC ACID — it is the only '
+                      'form proven to prevent neural-tube defects. Major genetics guidelines (ACMG) '
+                      'do NOT recommend routine MTHFR-based supplementation; discuss with a clinician.')
         })
         supplements.append({
             'name': 'Methylcobalamin (B12)',
@@ -682,10 +759,12 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
     if 'GC' in findings_dict and findings_dict['GC'].get('status') == 'low':
         supplements.append({
             'name': 'Vitamin D3',
-            'dose': '2000-5000 IU daily',
-            'reason': 'Genetically low vitamin D binding protein',
+            'dose': '1000-2000 IU daily (test blood level first)',
+            'reason': 'Genetic marker associated with lower measured vitamin D',
             'source': 'GC (lifestyle)',
-            'notes': 'Take with fat. Test 25-OH-D after 2-3 months. Target 40-60 ng/mL.'
+            'notes': ('Ask your doctor to check 25-OH-D before and after. Take with fat. The adult '
+                      'tolerable upper limit is 4000 IU/day — do not exceed it without medical '
+                      'supervision. Aim for the lab\'s normal range (commonly ~30-50 ng/mL).')
         })
         supplements.append({
             'name': 'Vitamin K2 (MK-7)',
@@ -715,8 +794,8 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
             'notes': 'Glycinate form preferred for bioavailability and sleep'
         })
 
-    # Choline for PEMT
-    if 'PEMT' in findings_dict:
+    # Choline for PEMT (only when the variant is actually present, not for the normal genotype)
+    if 'PEMT' in findings_dict and findings_dict['PEMT'].get('magnitude', 0) >= 1:
         supplements.append({
             'name': 'Choline (Phosphatidylcholine or CDP-Choline)',
             'dose': '250-500mg daily',
@@ -728,11 +807,14 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
     # BCMO1 - Vitamin A
     if 'BCMO1' in findings_dict and findings_dict['BCMO1'].get('status') == 'reduced':
         supplements.append({
-            'name': 'Preformed Vitamin A or Cod Liver Oil',
-            'dose': '2500-5000 IU (as retinol)',
-            'reason': 'Poor conversion from beta-carotene',
+            'name': 'Vitamin A (prefer beta-carotene / food sources)',
+            'dose': 'Dietary sources first; supplement only with guidance',
+            'reason': 'Reduced conversion of beta-carotene to active vitamin A',
             'source': 'BCMO1 (lifestyle)',
-            'notes': 'Get from food (liver, eggs) or supplement. Avoid excess.'
+            'notes': ('DO NOT take high-dose preformed vitamin A (retinol) or cod liver oil if '
+                      'pregnant or trying to conceive — retinol is teratogenic above ~10,000 IU/day. '
+                      'Prefer colorful vegetables and eggs; discuss any retinol supplement with a '
+                      'clinician and never exceed the label dose.')
         })
 
     # IL6 inflammation
@@ -769,10 +851,10 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
 
     # Folate foods
     if 'MTHFR' in findings_dict and findings_dict['MTHFR']['magnitude'] >= 2:
-        diet_recs.append("**Emphasize folate-rich foods**: Leafy greens, legumes, liver. Avoid folic acid-fortified processed foods when possible (UMFA accumulation risk).")
+        diet_recs.append("**Emphasize folate-rich foods**: Leafy greens, legumes. Do NOT avoid folic acid — it is safe and, if you are or may become pregnant, the only form proven to prevent neural-tube defects.")
 
     # Anti-inflammatory
-    if 'IL6' in findings_dict:
+    if gene_is_notable('IL6') and findings_dict['IL6'].get('status') == 'high':
         diet_recs.append("**Anti-inflammatory diet**: Omega-3 rich fish, colorful vegetables, minimize processed foods. Sleep deprivation spikes IL-6.")
 
     # Lactose
@@ -780,7 +862,7 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
         diet_recs.append("**Lactose intolerance**: May tolerate small amounts or fermented dairy (yogurt, aged cheese). Lactase supplements available. Ensure calcium from other sources.")
 
     # Celiac risk
-    if 'HLA-DQA1' in findings_dict:
+    if gene_is_notable('HLA-DQA1'):
         diet_recs.append("**Celiac risk (HLA-DQ2.5)**: No preventive gluten-free diet needed. If GI symptoms arise, get celiac antibody testing (tTG-IgA) *while still eating gluten*.")
 
     # Caffeine
@@ -796,8 +878,8 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
         diet_recs.append(f"**Caffeine caution** ({', '.join(caffeine_issues)}): Limit to morning only (before 10am). Consider lower doses, green tea (L-theanine), or alternatives.")
 
     # Iron
-    if 'HFE' in findings_dict:
-        diet_recs.append("**Iron awareness (HFE carrier)**: Don't supplement iron unless deficiency confirmed. Blood donation helps regulate if ferritin runs high.")
+    if gene_is_notable('HFE'):
+        diet_recs.append("**Iron awareness (HFE variant present)**: Don't supplement iron unless deficiency confirmed. Blood donation helps regulate if ferritin runs high.")
 
     if diet_recs:
         for rec in diet_recs:
@@ -833,18 +915,18 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
             lifestyle_recs.append("**Training style (ACTN3 mixed)**: Versatile profile - respond well to both power and endurance training.")
 
     # Circadian rhythm
-    if 'ARNTL' in findings_dict:
-        lifestyle_recs.append("**Circadian rhythm support (ARNTL)**: May have weaker internal clock. Strong morning light exposure, consistent sleep/wake times even weekends, blue light reduction in evening.")
+    if gene_is_notable('CLOCK'):
+        lifestyle_recs.append("**Circadian rhythm support (CLOCK)**: May have a weaker or shifted internal clock. Strong morning light exposure, consistent sleep/wake times even weekends, blue light reduction in evening.")
 
-    # Blood pressure
+    # Blood pressure (count only the risk-bearing BP genotypes, not normal ones)
     bp_genes = ['AGTR1', 'ACE', 'AGT', 'GNB3']
-    bp_findings = [findings_dict[g] for g in bp_genes if g in findings_dict]
-    if len(bp_findings) >= 2:
+    bp_notable = [g for g in bp_genes if gene_is_notable(g)]
+    if len(bp_notable) >= 2:
         lifestyle_recs.append("**Blood pressure focus**: Multiple BP-related variants. Regular monitoring, sodium restriction, DASH diet pattern, 150+ min/week aerobic exercise.")
 
     # Skin aging
-    if 'MC1R' in findings_dict:
-        lifestyle_recs.append("**Sun protection (MC1R)**: Accelerated skin aging variant. Daily SPF 30+, topical retinoids, antioxidant serums. Avoid excessive sun exposure.")
+    if gene_is_notable('MC1R'):
+        lifestyle_recs.append("**Sun protection (MC1R)**: Variant linked to sun sensitivity / skin aging. Daily SPF 30+, topical retinoids, antioxidant serums. Avoid excessive sun exposure.")
 
     if lifestyle_recs:
         for rec in lifestyle_recs:
@@ -861,25 +943,25 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
 
     monitoring = []
 
-    # Homocysteine
+    # Homocysteine (ACMG advises against routine MTHFR-driven workup; frame as optional)
     if 'MTHFR' in findings_dict and findings_dict['MTHFR']['magnitude'] >= 2:
-        monitoring.append("**Homocysteine**: Annually. Target <10 μmol/L. MTHFR variant affects metabolism.")
+        monitoring.append("**Homocysteine** (optional): You *could* ask your doctor whether a one-time homocysteine check makes sense. Major guidelines (ACMG) advise against routine MTHFR-driven testing, so this is not required.")
 
     # B12/MMA
     if 'MTRR' in findings_dict and findings_dict['MTRR']['magnitude'] >= 2:
         monitoring.append("**B12 + Methylmalonic acid (MMA)**: For functional B12 status. MTRR affects recycling.")
 
     # Vitamin D
-    if 'GC' in findings_dict:
-        monitoring.append("**25-OH Vitamin D**: After 2-3 months supplementation, then annually. Target 40-60 ng/mL.")
+    if gene_is_notable('GC'):
+        monitoring.append("**25-OH Vitamin D**: Check with your doctor; recheck a few months after any change. Aim for the lab's normal range (commonly ~30-50 ng/mL).")
 
     # Blood pressure
-    if any(g in findings_dict for g in ['AGTR1', 'ACE', 'AGT', 'GNB3']):
+    if len([g for g in ['AGTR1', 'ACE', 'AGT', 'GNB3'] if gene_is_notable(g)]) >= 2:
         monitoring.append("**Blood pressure**: Home monitoring recommended. Multiple BP-related variants.")
 
     # Ferritin
-    if 'HFE' in findings_dict:
-        monitoring.append("**Ferritin/iron panel**: Every 1-2 years. HFE carrier status.")
+    if gene_is_notable('HFE'):
+        monitoring.append("**Ferritin/iron panel**: Every 1-2 years. HFE variant present.")
 
     # Glucose
     if 'TCF7L2' in findings_dict and findings_dict['TCF7L2']['magnitude'] >= 2:
@@ -1072,6 +1154,10 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
 This protocol synthesizes genetic findings from multiple sources for informational purposes.
 It is NOT a clinical diagnosis or medical advice.
 
+- **Based on consumer genotyping (23andMe/AncestryDNA), which is not clinical-grade and can produce
+  false positives and false negatives.** Confirm important findings with clinical-grade testing.
+- **Supplement names and doses here are illustrative, not prescriptive** — discuss with a clinician
+  or pharmacist before starting anything, and heed any pregnancy cautions.
 - Genetic associations are probabilistic, not deterministic
 - Environmental factors, lifestyle, and other genes also influence outcomes
 - Classifications evolve as research progresses
@@ -1082,7 +1168,7 @@ It is NOT a clinical diagnosis or medical advice.
 *Generated by Genetic Health Analysis Pipeline - combining lifestyle genetics, PharmGKB, and ClinVar*
 """
 
-    with open(output_path, 'w') as f:
+    with open(output_path, 'w', encoding="utf-8") as f:
         f.write(report)
 
     print(f"    Written to: {output_path}")
@@ -1126,12 +1212,18 @@ def run_full_analysis(genome_path: Path = None, subject_name: str = None):
 
     # Save intermediate results for exhaustive report generator
     results_json = {
+        '_disclaimer': (
+            "Informational only; NOT a diagnosis or medical advice. Derived from consumer "
+            "genotyping (23andMe/AncestryDNA), which is not clinical-grade and can produce false "
+            "positives and false negatives. Confirm any finding with clinical-grade testing and a "
+            "clinician before acting."
+        ),
         'findings': health_results['findings'],
         'pharmgkb_findings': health_results['pharmgkb_findings'],
         'summary': health_results['summary'],
     }
     intermediate_path = REPORTS_DIR / "comprehensive_results.json"
-    with open(intermediate_path, 'w') as f:
+    with open(intermediate_path, 'w', encoding="utf-8") as f:
         json.dump(results_json, f, indent=2)
 
     # Generate exhaustive genetic report

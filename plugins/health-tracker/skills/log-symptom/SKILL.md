@@ -17,10 +17,10 @@ well-captured episode log is often worth more than another ER visit — and a di
 Two failure modes have wrecked real patients' care. This skill exists to prevent both:
 
 1. **Paraphrasing the patient's words into clinical language that means something different.**
-   A real case: a patient described her episodes as *"a snow globe being shaken."* A report
-   rewrote that as *"rotational vertigo"* — nearly the opposite sensation. That one substituted
-   word steered two decades of diagnosis toward the wrong conditions. **Quote the person's exact
-   words. Do not translate them into medical terms.**
+   For example, if someone says the floor *"tilts like a boat deck,"* do not rewrite that as
+   *"vertigo"* — a sense of tilting and a false sense of spinning point to different causes, and one
+   substituted word can steer years of diagnosis toward the wrong conditions. **Quote the person's
+   exact words. Do not translate them into medical terms.**
 2. **Treating a blank as a negative.** "No headache noted" is not the same as "asked about
    headache — there wasn't one." A symptom's *absence* is only evidence if someone actually asked.
    **Ask about each symptom below and record "asked — absent" rather than leaving it blank.**

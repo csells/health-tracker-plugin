@@ -106,7 +106,7 @@ inside the Cowork sandbox; do not introduce a dependency.
 `run_full_analysis.py` is **the only entry point any skill calls.** It loads the genome, matches it
 against three sources, and writes four files into the user's `reports/genetics/`:
 
-- `comprehensive_snp_database.py` — 79 curated SNPs across 16 categories (drug metabolism,
+- `comprehensive_snp_database.py` — curated SNPs across 16 categories (drug metabolism,
   methylation, fitness, …), each with per-genotype descriptions and a `magnitude` 0–4.
 - **PharmGKB** — drug-gene interactions, filtered to evidence levels 1A/1B/2A/2B.
 - **ClinVar** — matched *by chromosome:position*, not rsid; classified into pathogenic / likely
@@ -115,6 +115,33 @@ against three sources, and writes four files into the user's `reports/genetics/`
 
 It imports its report-writing functions from `generate_exhaustive_report.py` but inlines its own
 ClinVar logic.
+
+### Genome pipeline: correctness invariants (do not regress these)
+
+This is a health tool; a wrong interpretation can steer a real person wrong. These were each a
+real bug at some point — keep them fixed:
+
+- **Genome build must match.** ClinVar positions and 23andMe/AncestryDNA v5 exports are both
+  **GRCh37**. Position matching is only valid on the same build. A build mismatch produces
+  *reproducible garbage* — determinism proves nothing here.
+- **Haploid loci.** Consumer arrays report a single-character genotype for all mitochondrial
+  variants and for male non-PAR X/Y. A single copy of the alt allele there is homoplasmic/hemizygous
+  = **affected**, not "heterozygous." `genotype_call()` handles this; `tests/test_zygosity.py`
+  guards it. Don't reintroduce `is_homozygous = gt == alt+alt` as the only affected path.
+- **SNP orientation.** A curated entry's genotype keys are in the chip's strand orientation, which is
+  often the reverse complement of dbSNP's forward strand. Getting this backwards **flips** the
+  interpretation (calls the normal genotype "risk"). **Every new/edited entry must be orientation-
+  verified against SNPedia/dbSNP** for which genotype is the risk/effect one. Several entries shipped
+  flipped before this was caught.
+- **Disclaimers are hard-coded, not model-dependent.** Every generated report embeds a top caveat
+  (see `TOP_CAVEAT`) and a full disclaimer including the consumer-genotyping false-positive warning;
+  the HTML template carries a fixed disclaimer `<div>`. A user must never receive health-suggestive
+  output without the caveat, regardless of what the model does.
+- **Recommendations gate on the risk genotype, not gene presence.** Every matched genotype (including
+  the *normal* one) becomes a finding, so `if 'GENE' in findings_dict` fires for healthy people. Gate
+  on `gene_is_notable()` / an explicit status, or you tell a non-carrier they're a carrier.
+- **Never discourage proven folic acid**, especially for anyone who could become pregnant — it is the
+  only form proven to prevent neural-tube defects.
 
 **Three scripts are dead code:** `analyze_genome.py`, `full_health_analysis.py`, and
 `disease_risk_analyzer.py` are standalone `__main__` scripts that overlap `run_full_analysis.py`,
@@ -142,9 +169,9 @@ into multiple SKILL.md files on purpose.
    there — not a duplicate, not a mistake. Corrections are *added alongside*; history is never
    rewritten. Duplicate exports move to `intake/duplicate-exports/` for the **user** to delete.
 2. **Quote the person's own words verbatim; never paraphrase a symptom into clinical language.**
-   The cautionary case, cited in both `log-symptom` and `health-report`: a patient described her
-   episodes as *"a snow globe being shaken"*; a report rewrote it as *"rotational vertigo"* — nearly
-   the opposite sensation — and that one substituted word misdirected two decades of care.
+   The cautionary pattern, echoed in `log-symptom` and `health-report`: if someone says the floor
+   *"tilts like a boat deck"* and a report rewrites it as *"vertigo,"* that names a different
+   sensation with different causes — one substituted word can misdirect years of care.
 3. **A blank is not a negative.** "Not asked" and "asked, absent" are different facts. Likewise
    "never tested" ≠ "tested negative" — reports must distinguish them so nobody re-orders a test, or
    skips one that was never done.
