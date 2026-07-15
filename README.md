@@ -5,14 +5,11 @@ This turns Claude into a private assistant for your medical records — one that
 specialist actually needs them, produce a clean summary for your doctor, and (optionally) make sense
 of a 23andMe or AncestryDNA download.
 
-**You don't need to be technical, and you don't need to read this whole page** — but please read the
-one box just below before you rely on anything this produces.
-
-> ⚠️ **This is not a doctor, and it does not give medical advice.** It helps you *organize* your
+> ⚠️ **This is not a doctor, and it does not give medical advice.** It helps you _organize_ your
 > records and have better conversations with real clinicians — it does not replace them, and nothing
 > it produces is a diagnosis. The optional DNA analysis reads consumer 23andMe/AncestryDNA data,
 > which is **not clinical-grade and can produce false positives** (and can miss things too). Treat
-> anything it flags as something to *ask a professional about*, and confirm it with proper clinical
+> anything it flags as something to _ask a professional about_, and confirm it with proper clinical
 > testing before acting on it. In an emergency, call your local emergency number — not this.
 
 ---
@@ -36,9 +33,9 @@ If you'd rather do it by hand, the steps are spelled out further down.
 
 ## 🤖 For Claude: how to onboard this person
 
-*If someone has pasted you this link and asked for help setting up, this section is for you. They
-are **not technical**. Don't show them file paths, JSON, or terminal commands. Just talk them
-through it and do everything you can on their behalf.*
+_If someone has pasted you this link and asked for help setting up, this section is for you. They
+may not be technical. Don't show them file paths, JSON, or terminal commands. Just talk them
+through it and do everything you can on their behalf._
 
 **Say this first, in plain words (and again when setup finishes):** this tool helps them organize
 their records and prepare for doctor visits — it is **not a doctor, does not give medical advice, and
@@ -74,19 +71,19 @@ It interviews them and builds everything. Just start it.
 
 Talk in plain language. Claude picks the right tool automatically.
 
-| Say this | What happens |
-|---|---|
-| *"Set up my health tracker"* | Asks you some questions and builds your folders and profile |
-| *"File my new records"* | Sorts and files any documents you dropped in the **intake** folder |
-| *"I had an episode last night"* | Records the symptom properly, and flags anything time-sensitive |
-| *"Make me a health report"* | Builds a printable summary you can hand a doctor |
-| *"Analyze my DNA"* | Runs a genetic health report on your raw 23andMe/AncestryDNA file |
+| Say this                        | What happens                                                       |
+| ------------------------------- | ------------------------------------------------------------------ |
+| _"Set up my health tracker"_    | Asks you some questions and builds your folders and profile        |
+| _"File my new records"_         | Sorts and files any documents you dropped in the **intake** folder |
+| _"I had an episode last night"_ | Records the symptom properly, and flags anything time-sensitive    |
+| _"Make me a health report"_     | Builds a printable summary you can hand a doctor                   |
+| _"Analyze my DNA"_              | Runs a genetic health report on your raw 23andMe/AncestryDNA file  |
 
 **Adding records:** drop PDFs (labs, visit notes, anything) into the **intake** folder, then say
-*"file my new records."*
+_"file my new records."_
 
 **Adding your DNA (optional):** download the **raw data** file from 23andMe or AncestryDNA, put it
-in **records → genome**, and say *"analyze my DNA."* If it came as a `.zip`, unzip it first.
+in **records → genome**, and say _"analyze my DNA."_ If it came as a `.zip`, unzip it first.
 
 ---
 
@@ -108,7 +105,7 @@ If you'd rather not have Claude walk you through it:
 - **Your records stay yours.** Everything lives in the folder on your computer. Your medical
   documents and DNA are never uploaded to this project or to GitHub. Only public medical reference
   data ships with the plugin.
-- **Your originals are safe.** The assistant is built to *never* delete or change an original
+- **Your originals are safe.** The assistant is built to _never_ delete or change an original
   document you add. It only ever adds. Duplicates get set aside for you to delete — it won't delete
   them for you.
 - **Turn off training on your chats.** Given what's in here, it's worth going into the Claude app's
@@ -116,15 +113,16 @@ If you'd rather not have Claude walk you through it:
 - **Put the folder somewhere backed up** — the same place your other important documents live.
 - **This is not a doctor.** Everything it produces is meant to make conversations with your real
   doctors better, not to replace them. The DNA analysis reads consumer genotyping data, which can
-  produce false positives; treat anything it finds as something to *ask a professional about*, not
+  produce false positives; treat anything it finds as something to _ask a professional about_, not
   as a diagnosis.
 
 ---
+
 ---
 
 # Maintainer notes
 
-*Nothing below here matters if you're just using this. Stop reading — you're done.*
+_Nothing below here matters if you're just using this. Stop reading — you're done._
 
 **Layout.** `.claude-plugin/marketplace.json` (marketplace manifest) → `plugins/health-tracker/`
 holding `.claude-plugin/plugin.json`, `version.json`, `skills/` (setup-health-tracker, file-records,
@@ -135,7 +133,7 @@ and `reference/` (public ClinVar + PharmGKB, gzipped).
 The user clicks **Update** on the marketplace and gets it. You never touch their machine.
 
 **The reference data.** ClinVar (341,375 variants) + PharmGKB. Raw ClinVar is 289 MB — over GitHub's
-100 MB/file limit *and* the 200 MB plugin cap — so it ships gzipped (~27 MB), read directly via
+100 MB/file limit _and_ the 200 MB plugin cap — so it ships gzipped (~27 MB), read directly via
 Python's `gzip` module, streaming row by row.
 
 **Nothing was filtered out of it.** The compression is byte-for-byte lossless: every row and column
