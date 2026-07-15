@@ -55,10 +55,14 @@ Plugin installation is a deliberate security boundary: a plugin can ship executa
 Wait for them to confirm. If they get stuck, help them find the buttons — don't move on without it,
 because none of the skills exist until they do this.
 
-**Step 2 — Have them pick a folder.**
+**Step 2 — Have them pick a folder that backs itself up.**
 
-Ask them to make a folder for their health information (Documents → "My Health" is a fine default),
-and connect it in Cowork. It can be empty; you'll fill it.
+This folder will hold the only copy of their records, so it should live somewhere that syncs to the
+cloud automatically. Ask them to make a folder for their health information **inside their Dropbox,
+OneDrive, Google Drive, or iCloud Drive folder** (e.g. "My Health"), and connect that in Cowork —
+then a lost or broken computer doesn't mean lost records. If they don't use any of those, a plain
+Documents folder is fine to start, but tell them plainly it won't be backed up until they move it
+somewhere that syncs. It can be empty; you'll fill it.
 
 **Step 3 — Run the setup.**
 
@@ -95,7 +99,9 @@ If you'd rather not have Claude walk you through it:
 2. Start a **Cowork** session.
 3. **Customize → Plugins → Add marketplace** → enter `csells/health-tracker-plugin` → **Install** the
    **health-tracker** plugin.
-4. Make a folder for your health information and connect it in Cowork.
+4. Make a folder for your health information **inside a folder that syncs to the cloud** (Dropbox,
+   OneDrive, Google Drive, or iCloud Drive) so it's automatically backed up, and connect it in
+   Cowork. (A plain Documents folder works too, but it won't be backed up.)
 5. Say: **"Set up my health tracker."**
 
 ---
@@ -110,7 +116,9 @@ If you'd rather not have Claude walk you through it:
   them for you.
 - **Turn off training on your chats.** Given what's in here, it's worth going into the Claude app's
   **Privacy** settings and turning off using your conversations to improve their models.
-- **Put the folder somewhere backed up** — the same place your other important documents live.
+- **Keep the folder somewhere that backs itself up** — inside Dropbox, OneDrive, Google Drive, or
+  iCloud Drive, so it's the only copy of your records but never the *last* copy. If you started it in
+  a plain local folder, move it into one of those.
 - **This is not a doctor.** Everything it produces is meant to make conversations with your real
   doctors better, not to replace them. The DNA analysis reads consumer genotyping data, which can
   produce false positives; treat anything it finds as something to _ask a professional about_, not

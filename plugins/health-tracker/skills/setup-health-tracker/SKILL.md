@@ -19,6 +19,14 @@ Confirm you're in the right place. You should be working inside the folder the p
 `records/` folder and a `PROFILE.md` here, an archive exists — **stop and don't overwrite it.**
 Ask whether they want to review or update it instead, and hand off to the relevant skill.
 
+**Check that this folder backs itself up — before you build anything.** This will hold the only copy
+of their records. Look at the path you're working in: if it sits inside a Dropbox, OneDrive, Google
+Drive, or iCloud Drive folder, it syncs automatically — good. If it looks like a plain local folder
+(e.g. `~/Documents/…` with no sync service in the path), gently point that out and offer to have them
+reconnect a folder inside one of those services first, so a lost or broken computer doesn't mean lost
+records. If they'd rather proceed on a plain local folder, that's their call — just make sure they
+heard it, and note it so it can be revisited.
+
 ## 1. Interview them — warmly, a few questions at a time
 
 Don't fire all of this at once. Ask in small, friendly batches. If they don't know an answer or
