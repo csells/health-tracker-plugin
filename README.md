@@ -5,7 +5,15 @@ This turns Claude into a private assistant for your medical records — one that
 specialist actually needs them, produce a clean summary for your doctor, and (optionally) make sense
 of a 23andMe or AncestryDNA download.
 
-**You don't need to be technical. You don't need to read this whole page.**
+**You don't need to be technical, and you don't need to read this whole page** — but please read the
+one box just below before you rely on anything this produces.
+
+> ⚠️ **This is not a doctor, and it does not give medical advice.** It helps you *organize* your
+> records and have better conversations with real clinicians — it does not replace them, and nothing
+> it produces is a diagnosis. The optional DNA analysis reads consumer 23andMe/AncestryDNA data,
+> which is **not clinical-grade and can produce false positives** (and can miss things too). Treat
+> anything it flags as something to *ask a professional about*, and confirm it with proper clinical
+> testing before acting on it. In an emergency, call your local emergency number — not this.
 
 ---
 
@@ -31,6 +39,12 @@ If you'd rather do it by hand, the steps are spelled out further down.
 *If someone has pasted you this link and asked for help setting up, this section is for you. They
 are **not technical**. Don't show them file paths, JSON, or terminal commands. Just talk them
 through it and do everything you can on their behalf.*
+
+**Say this first, in plain words (and again when setup finishes):** this tool helps them organize
+their records and prepare for doctor visits — it is **not a doctor, does not give medical advice, and
+nothing it produces is a diagnosis**. If they add DNA later, tell them the analysis is not
+clinical-grade and can produce false positives, so anything it flags is a question for a professional,
+not an answer. Don't skip this because they said they don't want to read — say it to them.
 
 **Step 1 — Have them install the plugin. This is the one thing you cannot do for them.**
 
