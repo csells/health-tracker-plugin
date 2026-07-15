@@ -28,7 +28,8 @@ most — update the living documents so nothing gets lost.
 
 - Documents from **providers or labs** → `records/clinical/<category>/`
 - Documents the **person wrote themselves** → `records/personal/`
-- Raw DNA exports → `records/genome/`
+- **Raw DNA exports** (`.txt`/`.tsv` from 23andMe/AncestryDNA) → `records/genome/`, **kept under
+  their original name and extension** (see the genome exception below)
 - Lab values → appended to `reports/current/lab-timeline.csv`
 
 ## Workflow
@@ -68,10 +69,14 @@ unclear matches. **Wait for the person to confirm before filing anything.**
    | ER visits, admissions, after-visit summaries, visit notes, historical records | `records/clinical/visits/` |
    | Insurance cards | `records/clinical/insurance/` |
    | **Anything the person wrote themselves** (diaries, concerns, questions) | **`records/personal/`** |
+   | **Raw DNA export** (a large `.txt`/`.tsv` whose first lines are `#` comment headers followed by rows like `rsid  chromosome  position  genotype`; from 23andMe/AncestryDNA) | **`records/genome/`** |
 
    If a document doesn't fit these, ask rather than guessing.
 
-3. Name it `YYYY-MM-DD Description.pdf` using the actual service date.
+3. Name it `YYYY-MM-DD Description.pdf` using the actual service date. **Exception — a raw DNA
+   export:** move it into `records/genome/` **unchanged**, keeping its original filename and
+   `.txt`/`.tsv` extension. Do **not** date-rename it and do **not** convert it to PDF — the
+   `analyze-genome` skill only finds `.txt`/`.tsv` files, so renaming or converting hides it.
 4. Move (from `intake/`) or copy (from an external folder) into place.
 
 ### 4. Update the lab timeline
@@ -107,3 +112,6 @@ Report: how many files were filed and where; how many lab rows were added; **wha
 living documents**; any duplicates preserved in `intake/duplicate-exports/` (and that they're safe
 to delete); anything skipped and why; and **confirmation that no data was lost** (counts before
 and after).
+
+If one of the filed items was a raw DNA export, let them know it's now in `records/genome/` and they
+can say **"analyze my DNA"** whenever they want the genetic report.

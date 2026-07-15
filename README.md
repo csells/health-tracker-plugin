@@ -83,11 +83,16 @@ Talk in plain language. Claude picks the right tool automatically.
 | _"Make me a health report"_     | Builds a printable summary you can hand a doctor                   |
 | _"Analyze my DNA"_              | Runs a genetic health report on your raw 23andMe/AncestryDNA file  |
 
-**Adding records:** drop PDFs (labs, visit notes, anything) into the **intake** folder, then say
-_"file my new records."_
+**The intake folder is your one drop-zone.** Anything new — records or DNA — goes into **intake**,
+and you ask me to sort it. You never need to dig into the records folders yourself.
 
-**Adding your DNA (optional):** download the **raw data** file from 23andMe or AncestryDNA, put it
-in **records → genome**, and say _"analyze my DNA."_ If it came as a `.zip`, unzip it first.
+**Adding records:** drop PDFs (labs, visit notes, anything) into the **intake** folder, then say
+_"file my new records."_ I'll read each one, file it under the right category, and give it a clear,
+dated name.
+
+**Adding your DNA (optional):** download the **raw data** file from 23andMe or AncestryDNA (the
+`.txt`, not the PDF ancestry report), drop it in the same **intake** folder, and say _"analyze my
+DNA."_ If it came as a `.zip`, unzip it first so the `.txt` is what you drop in.
 
 ---
 

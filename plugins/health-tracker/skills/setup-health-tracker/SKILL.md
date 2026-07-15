@@ -59,8 +59,9 @@ that's fine — the file starts empty and grows as they discover things.
 
 **Their DNA data (optional)**
 - Do they have a raw DNA download from 23andMe or AncestryDNA? If so, they can drop the `.txt`
-  file into `records/genome/` and you can run a genetic analysis later (the **analyze-genome**
-  skill). If not, skip it entirely — everything else works without it.
+  file into the **`intake`** folder (the same drop-zone as their records) and you can run a genetic
+  analysis later (the **analyze-genome** skill), which will move it into `records/genome/`. If not,
+  skip it entirely — everything else works without it.
 
 ## 2. Build the folder structure
 

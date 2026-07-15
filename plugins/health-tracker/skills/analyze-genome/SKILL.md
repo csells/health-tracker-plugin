@@ -10,10 +10,16 @@ something they can actually understand and use.
 
 ## What this needs
 
-- A raw DNA export in **`records/genome/`** — the `.txt` file from **23andMe** or **AncestryDNA**
-  (the "raw data" download, not the PDF ancestry report). If they downloaded a `.zip`, unzip it
-  first so the `.txt` is in the folder. If there's no export there yet, tell them how to get one
-  and stop — this skill can't run without it.
+- A raw DNA export — the `.txt` file from **23andMe** or **AncestryDNA** (the "raw data" download,
+  not the PDF ancestry report). It normally lives in **`records/genome/`**.
+  - **If `records/genome/` has no export, look in `intake/`** (and, if the person points you at one,
+    their Downloads). A raw export is a large `.txt`/`.tsv` whose first lines are `#` comment headers
+    followed by rows like `rsid  chromosome  position  genotype`. If you find one there, tell the
+    person and **move it into `records/genome/` under its original name** before running — keep the
+    original filename and extension, and never copy it into the plugin.
+  - If it came as a `.zip`, unzip it first so the `.txt` is what lands in the folder.
+  - If you still can't find an export anywhere, tell them how to download one and stop — this skill
+    can't run without it.
 
 ## What ships with the plugin
 
